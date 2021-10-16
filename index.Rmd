@@ -19,14 +19,13 @@ output: html_document
 
 # **IN4402 - "Aplica"**
 
-Éste es un Tutorial de Datos, donde se entregarán instrucciones para que sigas en tu propio computador. Lo que debes hacer es seguir las instrucciones utilizando los códigos en R que se muestran.
+Bienvenidos/as al sitio de Aplicaciones de Probabilidades y Estadística en Gestión, IN4402, para el semestre Primavera 2021. 
+
+A continuación se presenta un Tutorial de Datos (Data Tutorial). Corresponde a una actividad que busca reforzar los conocimientos adquiridos durante las últimas lecturas, en base a un desarrollo en código. La siguiente actividad corresponde a la materia de Variables Instrumentales, en particular a la estimación mediante mínimos cuadrados en dos etapas.
+
+En el tutorial se entregan instrucciones, mediante código en R, para que desarrolles la actividad en tu propio computador.
 
 </div>
 <div class="col-sm-6">
-
-### [Crump Lab: Human Cognition and Performance](https://crumplab.github.io)
-
-<a href = "https://crumplab.github.io">
-![](images/logo.png)
-</a>
+![](images/causation.png)
 </div>
