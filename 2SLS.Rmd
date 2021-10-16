@@ -61,7 +61,13 @@ Z <- rnorm(300,0,1)
 
 Para construir la endogeneidad en $X_i$, simularemos ambos errores no observables ($u_i$, $v_i$), en base a una misma distribución normal bivariada, con una correlación entre -1 y 1. Al presentar esta correlación entre los errores, en la ecuación (1) la variable $X_i$ (generada en base al error $v_i$) se encuentra correlacionada con el error no observable de la ecuación ($u_i$).
 
-Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (por construcción $\beta = 5$). Para evaluar esto, correremos 400 simulaciones del caso recién descrito, estimando cada vez $(\beta_{OLS})$. Observa que ocurre en [el gráfico.](https://www.shinyapps.io)
+Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (por construcción $\beta = 5$). Para evaluar esto, correremos 400 simulaciones del caso recién descrito, estimando cada vez $(\beta_{OLS})$. Observa que ocurre en [el gráfico.](https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo) ¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?
+
+
+
+$$\\[1in]$$
+
+
 
 
 
@@ -83,7 +89,48 @@ La función que utilizaremos para realizar 2SLS será:
 reg_vi <- ivreg(Y ~ X + Q | Z + Q)
 ````
 
-Esta vez, nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de una mismo escenario. Veremos cómo el tamaño de los datos de cada escenario afectan a la precisión del estimador. Al mirar [el gráfico](https://www.shinyapps.io) se puede ver que, aunque la varianza cambie, el promedio o valor medio siempre está en torno al valor 5, que es, el valor definido del parámetro $\beta = 5$.
+Esta vez, nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de una mismo escenario. Al mirar el gráfico se puede ver que, aunque la varianza cambie, el promedio o valor medio siempre está en torno al valor 5, que es, el valor definido del parámetro $\beta = 5$. ¿El método de VI logra corregir el sesgo de endogeneidad? ¿Qué ocurrirá si se aumenta el tamaño de la muestra en cada escenario?
+
+```{r}
+beta=5
+lambda=1
+gamma=1
+delta=1
+tamanhomuestra=600
+B_IV <-rep(0,400) #se guardarán acá los betas_OLS con Z original
+for(i in 1:400){ #hacemos 400 simulaciones
+  Q<-rnorm(tamanhomuestra,0,1) #Una variable de distribución normal con N valores
+  Z<-rnorm(tamanhomuestra,0,1) #Una variable de distribución normal con N valores
+  sigma <- matrix(c(1,0.5, 0.5, 1), ncol=2) 
+  epsilon <- rmvnorm(n=tamanhomuestra, mean=c(0,0), sigma=sigma) #Este es el origen de la endogeneidad
+  u=epsilon[,1] 
+  e=epsilon[,2] 
+  X=gamma*Z+delta*Q+e #Calculamos X en función de las simulaciones Z, Q y e
+  Y=beta*X+lambda*Q+u #Calculamos Y en función de X y las simulaciones Q, y u
+  reg2<-ivreg(Y~X+Q|Z+Q) #Estimamos el valor de beta y de lambda de las ecuaciones mediante 2SLS
+  B_IV[i]<-summary(reg2)$coefficients[2,1] #guardamos betas IV que es cercano a 5 e insesgado
+}
+
+ggplot(as.data.frame(B_IV)) + 
+aes(B_IV)+
+geom_density(alpha=0.3, fill="#999999") +
+geom_vline(xintercept=5, linetype="dashed", color="red")+
+theme_fivethirtyeight()+ 
+theme(panel.grid = element_blank(),
+    axis.line = element_line(colour = "black"), 
+    plot.title = element_text(hjust = 0.5,size=18), 
+    text = element_text(size=18), 
+    axis.title = element_text(),
+    axis.text.x = element_text(angle=60, hjust=1,size=18)) + 
+xlim(3.5,6.5) + ylim(0,15)+
+labs(x="Estimador IV", #agrega etiqueta del eje X
+   y="Densidad", #agrega etiqueta del eje y
+   title="Distribución estimador IV")
+
+```
+
+$$\\[1in]$$
+
 
 
 
@@ -158,11 +205,17 @@ for(i in 1:400){ #hacemos 400 simulaciones
        title="Distribución estimador IV artificial")
 ```
 
+¿La estimación es insesgada? ¿Es eficiente? ¿Crees que funciona utilizar una simulación de un instrumento?
+
+$$\\[1in]$$
+
+
+
 # **Análisis conjunto**
 
 Utilizar un instrumento artificial no funciona, pues aunque cada iteración en que se escoge aquella variable $Za_i$ que sí es relevante (porque está correlacionada con $X_i$), no es posible asegurar que este NO esté correlacionado con el error no observado ($u_i$). Lo anterior se debe a que la exogeneidad del instrumento ($Cov(Za_i, u_i) = 0$) es imposible de construir ni de observar. Por lo tanto, para cada caso en que $Za_i$ es relevante, NO puede asegurarse que sea al mismo tiempo exógena en la misma medida. Van a ocurrir casos en que sí, van a ocurrir casos en que no, es por eso que el estimador sigue estando sesgado, y además, es poco eficiente.
 
-Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos y responda a las preguntas.
+Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos. ¿Qué método entrega una estimación insesgada? ¿Qué método entrega una estimación eficiente?
 
 ```{r}
 #Se inicializan los indicadores de acuerdo a lo propuesto en las ecuaciones

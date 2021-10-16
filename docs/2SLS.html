@@ -364,7 +364,8 @@ body {
 <pre class="r"><code>Q &lt;- rnorm(300,0,1)
 Z &lt;- rnorm(300,0,1)</code></pre>
 <p>Para construir la endogeneidad en <span class="math inline">\(X_i\)</span>, simularemos ambos errores no observables (<span class="math inline">\(u_i\)</span>, <span class="math inline">\(v_i\)</span>), en base a una misma distribución normal bivariada, con una correlación entre -1 y 1. Al presentar esta correlación entre los errores, en la ecuación (1) la variable <span class="math inline">\(X_i\)</span> (generada en base al error <span class="math inline">\(v_i\)</span>) se encuentra correlacionada con el error no observable de la ecuación (<span class="math inline">\(u_i\)</span>).</p>
-<p>Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (por construcción <span class="math inline">\(\beta = 5\)</span>). Para evaluar esto, correremos 400 simulaciones del caso recién descrito, estimando cada vez <span class="math inline">\((\beta_{OLS})\)</span>. Observa que ocurre en <a href="https://www.shinyapps.io">el gráfico.</a></p>
+<p>Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (por construcción <span class="math inline">\(\beta = 5\)</span>). Para evaluar esto, correremos 400 simulaciones del caso recién descrito, estimando cada vez <span class="math inline">\((\beta_{OLS})\)</span>. Observa que ocurre en <a href="https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo">el gráfico.</a> ¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?</p>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="variables-instrumentales" class="section level1">
 <h1><strong>Variables Instrumentales</strong></h1>
@@ -376,7 +377,9 @@ Z &lt;- rnorm(300,0,1)</code></pre>
 <p>Ahora probaremos utilizando la variable <span class="math inline">\(Z_i\)</span> como instrumento de la variable <span class="math inline">\(X_i\)</span>. En nuestra simulación, <span class="math inline">\(Z\)</span> fue contruida de forma completamente exógena. Además, fue parte de la definición de <span class="math inline">\(X_i\)</span>, por lo que cumple también con ser un instrumento relevante.</p>
 <p>La función que utilizaremos para realizar 2SLS será:</p>
 <pre class="r"><code>reg_vi &lt;- ivreg(Y ~ X + Q | Z + Q)</code></pre>
-<p>Esta vez, nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de una mismo escenario. Veremos cómo el tamaño de los datos de cada escenario afectan a la precisión del estimador. Al mirar <a href="https://www.shinyapps.io">el gráfico</a> se puede ver que, aunque la varianza cambie, el promedio o valor medio siempre está en torno al valor 5, que es, el valor definido del parámetro <span class="math inline">\(\beta = 5\)</span>.</p>
+<p>Esta vez, nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de una mismo escenario. Al mirar el gráfico se puede ver que, aunque la varianza cambie, el promedio o valor medio siempre está en torno al valor 5, que es, el valor definido del parámetro <span class="math inline">\(\beta = 5\)</span>. ¿El método de VI logra corregir el sesgo de endogeneidad? ¿Qué ocurrirá si se aumenta el tamaño de la muestra en cada escenario?</p>
+<p><img src="2SLS_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 </div>
 <div id="variable-instrumental-artificial" class="section level1">
@@ -397,14 +400,17 @@ while (significativo == 0) {                      #Se repite el loop hasta que s
   }
 }</code></pre>
 <p>Al realizar este ejercicio, se grafican los 400 valores del estimador <span class="math inline">\(\beta_Za\)</span>, tal y como se muestra a continuación:</p>
-<p><img src="2SLS_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p><img src="2SLS_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>¿La estimación es insesgada? ¿Es eficiente? ¿Crees que funciona utilizar una simulación de un instrumento?</p>
+<p><span class="math display">\[\\[1in]\]</span></p>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 </div>
 <div id="análisis-conjunto" class="section level1">
 <h1><strong>Análisis conjunto</strong></h1>
 <p>Utilizar un instrumento artificial no funciona, pues aunque cada iteración en que se escoge aquella variable <span class="math inline">\(Za_i\)</span> que sí es relevante (porque está correlacionada con <span class="math inline">\(X_i\)</span>), no es posible asegurar que este NO esté correlacionado con el error no observado (<span class="math inline">\(u_i\)</span>). Lo anterior se debe a que la exogeneidad del instrumento (<span class="math inline">\(Cov(Za_i, u_i) = 0\)</span>) es imposible de construir ni de observar. Por lo tanto, para cada caso en que <span class="math inline">\(Za_i\)</span> es relevante, NO puede asegurarse que sea al mismo tiempo exógena en la misma medida. Van a ocurrir casos en que sí, van a ocurrir casos en que no, es por eso que el estimador sigue estando sesgado, y además, es poco eficiente.</p>
-<p>Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos y responda a las preguntas.</p>
-<p><img src="2SLS_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos. ¿Qué método entrega una estimación insesgada? ¿Qué método entrega una estimación eficiente?</p>
+<p><img src="2SLS_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 </div>
 
 
