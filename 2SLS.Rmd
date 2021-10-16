@@ -61,8 +61,54 @@ Z <- rnorm(300,0,1)
 
 Para construir la endogeneidad en $X_i$, simularemos ambos errores no observables ($u_i$, $v_i$), en base a una misma distribución normal bivariada, con una correlación entre -1 y 1. Al presentar esta correlación entre los errores, en la ecuación (1) la variable $X_i$ (generada en base al error $v_i$) se encuentra correlacionada con el error no observable de la ecuación ($u_i$).
 
+```{r}
+corrvalue <- 0.5 # los resultados serán diferentes según cambie este valor
+sigma <- matrix(c(1,corrvalue,corrvalue,1), ncol=2) 
+epsilon <- rmvnorm(n=300, mean=c(0,0), sigma=sigma)
+u_i = epsilon[,1] 
+v_i = epsilon[,2]
+```
+
 Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (por construcción $\beta = 5$). Para evaluar esto, correremos 400 simulaciones del caso recién descrito, estimando cada vez $(\beta_{OLS})$. Observa que ocurre en [el gráfico.](https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo) ¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?
 
+```{r, echo=TRUE, eval=FALSE}
+# Para replicar el gráfico
+beta=5
+lambda=1
+gamma=1
+delta=1
+corrvalue=0.5
+B_OLS <-rep(0,400) #se guardarán acá los betas_OLS con Z original
+for(i in 1:400){ #hacemos 400 simulaciones
+  Q<-rnorm(300,0,1) #Una variable de distribución normal con 300 valores
+  Z<-rnorm(300,0,1) #Una variable de distribución normal con 300 valores
+  sigma <- matrix(c(1,corrvalue,corrvalue,1), ncol=2) 
+  epsilon <- rmvnorm(n=300, mean=c(0,0), sigma=sigma) #Este es el origen de la endogeneidad
+  u=epsilon[,1] 
+  e=epsilon[,2] 
+  X=gamma*Z+delta*Q+e #Calculamos X en función de las simulaciones Z, Q y e
+  Y=beta*X+lambda*Q+u #Calculamos Y en función de X y las simulaciones Q, y u
+  reg1<-lm(Y~X+Q) #Estimamos el valor de beta y de lambda de las ecuaciones
+  B_OLS[i]<-summary(reg1)$coefficients[2,1] #guardamos beta, que debe ser cercano a 5 pero sesgado
+}
+
+ggplot(as.data.frame(B_OLS)) + 
+  aes(B_OLS)+
+  geom_density(alpha=0.3, fill= "#56B4E9") +
+  geom_vline(xintercept=5, linetype="dashed", color="red")+
+  theme_fivethirtyeight()+ 
+  theme(panel.grid.major = element_blank(),
+      axis.line = element_line(colour = "black"), 
+      plot.title = element_text(hjust = 0.5,size=18), 
+      text = element_text(size=18), 
+      axis.title = element_text(),
+      axis.text.x = element_text(angle=60, hjust=1,size=18)) + 
+  xlim(3.5,6.5) + ylim(0,15)+
+  labs(x="Estimador OLS", #agrega etiqueta del eje X
+     y="Densidad", #agrega etiqueta del eje y
+     title="Distribución estimador OLS")
+})
+```
 
 
 $$\\[1in]$$
@@ -81,7 +127,7 @@ $$ X_i = \gamma Z_i + \delta Q_i + v_i \hspace{0.3 cm} (2) $$
 
 $$  Y_i = \beta X_i + \lambda Q_i + u_i \hspace{0.3 cm} (1)$$
 
-Ahora probaremos utilizando la variable $Z_i$ como instrumento de la variable $X_i$. En nuestra simulación, $Z$ fue contruida de forma completamente exógena. Además, fue parte de la definición de $X_i$, por lo que cumple también con ser un instrumento relevante. 
+Ahora probaremos utilizando la variable $Z_i$ como instrumento de la variable $X_i$. En nuestra simulación, $Z$ fue construida de forma completamente exógena. Además, fue parte de la definición de $X_i$, por lo que cumple también con ser un instrumento relevante. 
 
 La función que utilizaremos para realizar 2SLS será:
 
@@ -91,7 +137,8 @@ reg_vi <- ivreg(Y ~ X + Q | Z + Q)
 
 Esta vez, nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de una mismo escenario. Al mirar el gráfico se puede ver que, aunque la varianza cambie, el promedio o valor medio siempre está en torno al valor 5, que es, el valor definido del parámetro $\beta = 5$. ¿El método de VI logra corregir el sesgo de endogeneidad? ¿Qué ocurrirá si se aumenta el tamaño de la muestra en cada escenario?
 
-```{r}
+
+```{r, echo=TRUE}
 beta=5
 lambda=1
 gamma=1
@@ -160,7 +207,7 @@ while (significativo == 0) {                      #Se repite el loop hasta que s
 Al realizar este ejercicio, se grafican los 400 valores del estimador $\beta_Za$, tal y como se muestra a continuación:
 
 
-```{r,echo=FALSE,warning=FALSE}
+```{r,echo=TRUE,warning=FALSE}
 beta=5
 lambda=1
 gamma=1
@@ -217,7 +264,7 @@ Utilizar un instrumento artificial no funciona, pues aunque cada iteración en q
 
 Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos. ¿Qué método entrega una estimación insesgada? ¿Qué método entrega una estimación eficiente?
 
-```{r}
+```{r, echo=TRUE}
 #Se inicializan los indicadores de acuerdo a lo propuesto en las ecuaciones
 beta=5
 lambda=1
