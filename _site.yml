@@ -1,0 +1,11 @@
+name: "IN4402"
+navbar:
+  title: "IN4402"
+  left:
+    - text: "Aplica"
+      href: index.html
+    - text: "2SLS"
+      href: 2SLS.html
+    - text: "Links"
+      href: Links.html
+output_dir: "docs"
