@@ -142,7 +142,6 @@ reg_vi <- ivreg(Y ~ X + Q | Z + Q)
 Esta vez, miraremos si la media de la distribución del coeficiente sigue sesgada, pero también nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de un escenario de 300 observaciones. Al mirar el gráfico se puede ver que, la distribución se encuentra centrada en el valor esperado ($\beta = 5$), pero su varianza es más amplia que el caso OLS. ¿El método de VI logra corregir el sesgo de endogeneidad? ¿Es esperable que la varianza de este estimador sea mayor que la de OLS?
 
 
-```{r, echo=TRUE}
 ```{r, echo=TRUE, eval = FALSE}
 #Se repite gráfico anterior, esta vez guardando:
 reg2<-ivreg(Y~X+Q|Z+Q) #Estimamos el valor de beta y de lambda de las ecuaciones mediante 2SLS
@@ -150,7 +149,6 @@ B_IV[i]<-summary(reg2)$coefficients[2,1] #guardamos betas IV que es cercano a 5 
 
 ```
 
-```{r, echo=FALSE, eval=TRUE}
 ```{r g1, echo=FALSE}
 beta=5
 lambda=1
