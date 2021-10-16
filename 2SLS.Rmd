@@ -143,6 +143,7 @@ Esta vez, miraremos si la media de la distribución del coeficiente sigue sesgad
 
 
 ```{r, echo=TRUE}
+```{r, echo=TRUE, eval = FALSE}
 #Se repite gráfico anterior, esta vez guardando:
 reg2<-ivreg(Y~X+Q|Z+Q) #Estimamos el valor de beta y de lambda de las ecuaciones mediante 2SLS
 B_IV[i]<-summary(reg2)$coefficients[2,1] #guardamos betas IV que es cercano a 5 e insesgado
@@ -150,6 +151,7 @@ B_IV[i]<-summary(reg2)$coefficients[2,1] #guardamos betas IV que es cercano a 5 
 ```
 
 ```{r, echo=FALSE, eval=TRUE}
+```{r g1, echo=FALSE}
 beta=5
 lambda=1
 gamma=1

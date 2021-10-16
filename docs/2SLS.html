@@ -13,8 +13,8 @@
 
 <title>Estimación por Método de Variables Instrumentales - 2SLS</title>
 
-<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
-<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -357,11 +357,18 @@ body {
 <p><span class="math display">\[  Y_i = \beta X_i + \lambda Q_i + u_i \hspace{0.3 cm} (1)\]</span></p>
 <p><span class="math display">\[ X_i = \gamma Z_i + \delta Q_i + v_i \hspace{0.3 cm} (2) \]</span></p>
 <p>Vemos que la variable <span class="math inline">\(X_i\)</span> se genera en la ecuación (2) y es a la vez una variable independiente en la ecuación (1). Definiremos los valores de <span class="math inline">\(\beta = 5\)</span>, y de <span class="math inline">\(\lambda = \gamma = \delta =1\)</span> para estudiar su estimación posterior.</p>
-<p>Podemos considerar que tanto <span class="math inline">\(Q_i\)</span> como <span class="math inline">\(Z_i\)</span> son variables exógenas, y para efecto de este ejercicio, las simularemos con una distribución normal de 300 observaciones (ese sería el tamaño de la muestra en cada escenario).</p>
+<p>Podemos considerar que tanto <span class="math inline">\(Q_i\)</span> como <span class="math inline">\(Z_i\)</span> son variables exógenas, y para efecto de este ejercicio, las simularemos con una distribución normal (0,1) de 300 observaciones (ese sería el tamaño de la muestra en cada escenario). Es decir, podemos pensar que tenemos registro de 300 personas o individuos, lo que genera 300 filas en nuestra planilla.</p>
 <pre class="r"><code>Q &lt;- rnorm(300,0,1)
 Z &lt;- rnorm(300,0,1)</code></pre>
-<p>Para construir la endogeneidad en <span class="math inline">\(X_i\)</span>, simularemos ambos errores no observables (<span class="math inline">\(u_i\)</span>, <span class="math inline">\(v_i\)</span>), en base a una misma distribución normal bivariada, con una correlación entre -1 y 1. Al presentar esta correlación entre los errores, en la ecuación (1) la variable <span class="math inline">\(X_i\)</span> (generada en base al error <span class="math inline">\(v_i\)</span>) se encuentra correlacionada con el error no observable de la ecuación (<span class="math inline">\(u_i\)</span>).</p>
-<p>Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (por construcción <span class="math inline">\(\beta = 5\)</span>). Para evaluar esto, correremos 400 simulaciones del caso recién descrito, estimando cada vez <span class="math inline">\((\beta_{OLS})\)</span>. Observa que ocurre en <a href="https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo">el gráfico.</a> ¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?</p>
+<p>Para que el modelo presente endogeneidad en la variable <span class="math inline">\(X_i\)</span>, simularemos ambos errores no observables (<span class="math inline">\(u_i\)</span>, <span class="math inline">\(v_i\)</span>), en base a una misma distribución normal bivariada, con una correlación entre -1 y 1. Si los errores tienen esta correlación, en la ecuación (1) la variable independiente <span class="math inline">\(X_i\)</span> (generada en base al error <span class="math inline">\(v_i\)</span>) se encuentra correlacionada con el error no observable de la ecuación (<span class="math inline">\(u_i\)</span>), y por lo tanto pasa a ser una variable endógena y su coeficiente estará estimado con sesgo.</p>
+<pre class="r"><code>corrvalue &lt;- 0.5 # los resultados serán diferentes según cambie este valor - ver gráfico
+sigma &lt;- matrix(c(1,corrvalue,corrvalue,1), ncol=2) 
+epsilon &lt;- rmvnorm(n=300, mean=c(0,0), sigma=sigma)
+u_i = epsilon[,1] 
+v_i = epsilon[,2]</code></pre>
+<p>Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (que por construcción sabemos que es <span class="math inline">\(\beta = 5\)</span>). Para chequearlo, correremos 400 simulaciones del caso recién descrito (es decir, repetiremos 400 veces una situación simulada de 300 casos), estimando cada vez <span class="math inline">\((\beta_{OLS})\)</span>.</p>
+<p>Observa qué ocurre en <a href="https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo,%20target=%22_blank%22">este gráfico.</a> cuando se manipula la correlación de los errores ¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?</p>
+<p>Ahora, para el caso de correlación 0,5; miraremos qué ocurre con el sesgo de OLS. ¿Dónde debería estar la media de la distribución del coeficiente, y dónde se encuentre realmente?</p>
 <pre class="r"><code># Para replicar el gráfico
 beta=5
 lambda=1
@@ -394,10 +401,10 @@ ggplot(as.data.frame(B_OLS)) +
       axis.title = element_text(),
       axis.text.x = element_text(angle=60, hjust=1,size=18)) + 
   xlim(3.5,6.5) + ylim(0,15)+
-  labs(x=&quot;Estimador OLS&quot;, #agrega etiqueta del eje X
-     y=&quot;Densidad&quot;, #agrega etiqueta del eje y
-     title=&quot;Distribución estimador OLS&quot;)
-})</code></pre>
+  labs(x=&quot;Estimador OLS&quot;,
+     y=&quot;Densidad&quot;,
+     title=&quot;Distribución estimador OLS&quot;)</code></pre>
+<p><img src="2SLS_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="variables-instrumentales" class="section level1">
@@ -410,42 +417,11 @@ ggplot(as.data.frame(B_OLS)) +
 <p>Ahora probaremos utilizando la variable <span class="math inline">\(Z_i\)</span> como instrumento de la variable <span class="math inline">\(X_i\)</span>. En nuestra simulación, <span class="math inline">\(Z\)</span> fue construida de forma completamente exógena. Además, fue parte de la definición de <span class="math inline">\(X_i\)</span>, por lo que cumple también con ser un instrumento relevante.</p>
 <p>La función que utilizaremos para realizar 2SLS será:</p>
 <pre class="r"><code>reg_vi &lt;- ivreg(Y ~ X + Q | Z + Q)</code></pre>
-<p>Esta vez, nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de una mismo escenario. Al mirar el gráfico se puede ver que, aunque la varianza cambie, el promedio o valor medio siempre está en torno al valor 5, que es, el valor definido del parámetro <span class="math inline">\(\beta = 5\)</span>. ¿El método de VI logra corregir el sesgo de endogeneidad? ¿Qué ocurrirá si se aumenta el tamaño de la muestra en cada escenario?</p>
-<pre class="r"><code>beta=5
-lambda=1
-gamma=1
-delta=1
-tamanhomuestra=600
-B_IV &lt;-rep(0,400) #se guardarán acá los betas_OLS con Z original
-for(i in 1:400){ #hacemos 400 simulaciones
-  Q&lt;-rnorm(tamanhomuestra,0,1) #Una variable de distribución normal con N valores
-  Z&lt;-rnorm(tamanhomuestra,0,1) #Una variable de distribución normal con N valores
-  sigma &lt;- matrix(c(1,0.5, 0.5, 1), ncol=2) 
-  epsilon &lt;- rmvnorm(n=tamanhomuestra, mean=c(0,0), sigma=sigma) #Este es el origen de la endogeneidad
-  u=epsilon[,1] 
-  e=epsilon[,2] 
-  X=gamma*Z+delta*Q+e #Calculamos X en función de las simulaciones Z, Q y e
-  Y=beta*X+lambda*Q+u #Calculamos Y en función de X y las simulaciones Q, y u
-  reg2&lt;-ivreg(Y~X+Q|Z+Q) #Estimamos el valor de beta y de lambda de las ecuaciones mediante 2SLS
-  B_IV[i]&lt;-summary(reg2)$coefficients[2,1] #guardamos betas IV que es cercano a 5 e insesgado
-}
-
-ggplot(as.data.frame(B_IV)) + 
-aes(B_IV)+
-geom_density(alpha=0.3, fill=&quot;#999999&quot;) +
-geom_vline(xintercept=5, linetype=&quot;dashed&quot;, color=&quot;red&quot;)+
-theme_fivethirtyeight()+ 
-theme(panel.grid = element_blank(),
-    axis.line = element_line(colour = &quot;black&quot;), 
-    plot.title = element_text(hjust = 0.5,size=18), 
-    text = element_text(size=18), 
-    axis.title = element_text(),
-    axis.text.x = element_text(angle=60, hjust=1,size=18)) + 
-xlim(3.5,6.5) + ylim(0,15)+
-labs(x=&quot;Estimador IV&quot;, #agrega etiqueta del eje X
-   y=&quot;Densidad&quot;, #agrega etiqueta del eje y
-   title=&quot;Distribución estimador IV&quot;)</code></pre>
-<p><img src="2SLS_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Esta vez, miraremos si la media de la distribución del coeficiente sigue sesgada, pero también nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de un escenario de 300 observaciones. Al mirar el gráfico se puede ver que, la distribución se encuentra centrada en el valor esperado (<span class="math inline">\(\beta = 5\)</span>), pero su varianza es más amplia que el caso OLS. ¿El método de VI logra corregir el sesgo de endogeneidad? ¿Es esperable que la varianza de este estimador sea mayor que la de OLS?</p>
+<pre class="r"><code>#Se repite gráfico anterior, esta vez guardando:
+reg2&lt;-ivreg(Y~X+Q|Z+Q) #Estimamos el valor de beta y de lambda de las ecuaciones mediante 2SLS
+B_IV[i]&lt;-summary(reg2)$coefficients[2,1] #guardamos betas IV que es cercano a 5 e insesgado</code></pre>
+<p><img src="2SLS_files/figure-html/g1-1.png" width="672" /></p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 </div>
@@ -453,7 +429,7 @@ labs(x=&quot;Estimador IV&quot;, #agrega etiqueta del eje X
 <h1><strong>Variable Instrumental Artificial</strong></h1>
 <div id="creación-de-una-variable-instrumental" class="section level2">
 <h2>Creación de una variable instrumental</h2>
-<p>Ahora, para cada una de las 400 iteraciones, simularemos variables <span class="math inline">\(Za_i\)</span> hasta encontrar una que esté correlacionada con la variable endógena <span class="math inline">\(X_i\)</span>, a través del siguiente código. Una vez se escoge <span class="math inline">\(Za_i\)</span> que satisface la condición, se estima la regresión y se guarda el coeficiente.</p>
+<p>Ahora, para cada una de las 400 iteraciones, dentro del gran loop, realizaremos otro loop donde simularemos variables <span class="math inline">\(Za_i\)</span> (de 300 registros) hasta encontrar una que esté correlacionada con la variable endógena <span class="math inline">\(X_i\)</span>, a través del siguiente código. Una vez se escoge un vector <span class="math inline">\(Za_i\)</span> que satisface la condición (de relevancia), estimaremos la regresión 2SLS correspondiente y guardaremos el coeficiente <span class="math inline">\(\beta\)</span> para volver a graficar la distribución de este estimador.</p>
 <pre class="r"><code>significativo &lt;- 0
 while (significativo == 0) {                      #Se repite el loop hasta que sea siginifcativo
   Za &lt;- rnorm(300,0,1)                            #Esta función genera un vector normal de 300 datos
@@ -465,52 +441,12 @@ while (significativo == 0) {                      #Se repite el loop hasta que s
     B_IVa[i]=summary(reg4)$coefficients[2,1]      #Se guarda el valor estimado para ver la distribución
     sig &lt;- 1                                      #Se corta el loop para esta iteración
   }
-}</code></pre>
-<p>Al realizar este ejercicio, se grafican los 400 valores del estimador <span class="math inline">\(\beta_Za\)</span>, tal y como se muestra a continuación:</p>
-<pre class="r"><code>beta=5
-lambda=1
-gamma=1
-delta=1
-B_IVa &lt;-rep(0,400) #se guardarán acá los betas_IV aleatorios si es que son significativos
-for(i in 1:400){ #hacemos 400 simulaciones
-  Q&lt;-rnorm(300,0,1) #Una variable de distribución normal con 300 valores
-  Z&lt;-rnorm(300,0,1) #Una variable de distribución normal con 300 valores
-  sigma &lt;- matrix(c(1,0.85,0.85,1), ncol=2)
-  epsilon &lt;- rmvnorm(n=300, mean=c(0,0), sigma=sigma) #Este es el origen de la endogeneidad
-  u=epsilon[,1] 
-  e=epsilon[,2] 
-  X=gamma*Z+delta*Q+e #Calculamos X en función de las simulaciones Z, Q y e
-  Y=beta*X+lambda*Q+u #Calculamos Y en función de X y las simulaciones Q, y u
-  sig &lt;- 0
-  while (sig == 0) {
-    Za&lt;-rnorm(300,0,1) 
-    reg3&lt;-lm(X~Za)
-    b &lt;-summary(reg3)$coefficients[2,1] 
-    se &lt;-summary(reg3)$coefficients[2,2] 
-    if(abs(b)/se &gt; 1.96){ 
-      reg4&lt;-ivreg(Y~X+Q|Za+Q)
-      B_IVa[i]=summary(reg4)$coefficients[2,1]
-      sig &lt;- 1
-    }
-  }
 }
- ggplot(as.data.frame(B_IVa)) + 
-    aes(B_IVa)+
-    geom_density(alpha=0.3, fill=&quot;#E69F00&quot;) +
-    geom_vline(xintercept=5, linetype=&quot;dashed&quot;, color=&quot;red&quot;)+
-    theme_fivethirtyeight() + 
-    theme(panel.grid = element_blank(),
-        axis.line = element_line(colour = &quot;black&quot;), 
-        plot.title = element_text(hjust = 0.5,size=18), 
-        text = element_text(size=18), 
-        axis.title = element_text(),
-        axis.text.x = element_text(angle=60, hjust=1,size=18)) + 
-    xlim(3.5,6.5) + ylim(0,15) +
-    labs(x=&quot;Estimador IV artificial&quot;, #agrega etiqueta del eje X
-       y=&quot;Densidad&quot;, #agrega etiqueta del eje y
-       title=&quot;Distribución estimador IV artificial&quot;)</code></pre>
-<p><img src="2SLS_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
-<p>¿La estimación es insesgada? ¿Es eficiente? ¿Crees que funciona utilizar una simulación de un instrumento?</p>
+
+#Se repite el gráfico anterior guardando B_IVa</code></pre>
+<p>Al realizar este ejercicio, se grafican los 400 valores del estimador <span class="math inline">\(\beta_Za\)</span>, tal y como se muestra a continuación:</p>
+<p><img src="2SLS_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>¿La estimación es insesgada? ¿Es más o menos eficiente que OLS y que VI? ¿Crees que funciona utilizar una simulación de un instrumento?</p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 </div>
@@ -518,75 +454,7 @@ for(i in 1:400){ #hacemos 400 simulaciones
 <h1><strong>Análisis conjunto</strong></h1>
 <p>Utilizar un instrumento artificial no funciona, pues aunque cada iteración en que se escoge aquella variable <span class="math inline">\(Za_i\)</span> que sí es relevante (porque está correlacionada con <span class="math inline">\(X_i\)</span>), no es posible asegurar que este NO esté correlacionado con el error no observado (<span class="math inline">\(u_i\)</span>). Lo anterior se debe a que la exogeneidad del instrumento (<span class="math inline">\(Cov(Za_i, u_i) = 0\)</span>) es imposible de construir ni de observar. Por lo tanto, para cada caso en que <span class="math inline">\(Za_i\)</span> es relevante, NO puede asegurarse que sea al mismo tiempo exógena en la misma medida. Van a ocurrir casos en que sí, van a ocurrir casos en que no, es por eso que el estimador sigue estando sesgado, y además, es poco eficiente.</p>
 <p>Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos. ¿Qué método entrega una estimación insesgada? ¿Qué método entrega una estimación eficiente?</p>
-<pre class="r"><code>#Se inicializan los indicadores de acuerdo a lo propuesto en las ecuaciones
-beta=5
-lambda=1
-gamma=1
-delta=1
-
-nobs=300
-nrep=400
-
-betas1=matrix(data=NA,nrow=nrep,ncol=3)
-
-for(i in 1:nrep){
-  #generación de la distribución multivariada estandar, primera columna es &quot;e&quot; y segunda columan &quot;u&quot;
-  Errores=rmvnorm(nobs,mean=c(0,0),sigma=matrix(c(1,0.8,0.8,1),2,2))
-  #generación Q y Z
-  Q=rnorm(nobs,mean=0,sd=1)
-  Z=rnorm(nobs,mean=0,sd=1)
-  #Hacer la variable X
-  X=gamma*Z+delta*Q+Errores[,1]
-  Y=beta*X+lambda*Q+Errores[,2]
-  #Escenario OLS
-  ols=lm(Y~X+Q)
-  betas1[i,1]=ols$coefficients[2]
-  #Escenario 2SLS 1
-  sls&lt;-ivreg(Y~X+Q|Z+Q) #Estimamos el valor de beta y de lambda de las ecuaciones mediante 2SLS
-  betas1[i,2]=sls$coefficients[2]
-  #Escenario 2SLS 2
-  sig &lt;- 0
-  while (sig == 0) {
-    Za=rnorm(nobs,mean=0,sd=1)
-    fls2=lm(X~Za+Q)
-    stat.coef  &lt;- summary(fls2)$coefficients
-    coef    &lt;- stat.coef[,1]    #coeficientes 
-    se.coef &lt;- stat.coef[,2]    # error estandar para cada coef.
-    if(abs(coef[2]/se.coef[2]) &gt; 1.96){
-      sig &lt;- 1
-      ra &lt;- ivreg(Y~X+Q|Za+Q)
-      betas1[i,3]=ra$coefficients[2]
-    }
-  }
-  
-}
-
-betas1=data.frame(betas1)
-names(betas1) = c(&quot;Beta-ols&quot;,&quot;Beta-iv&quot;,&quot;Beta-iva&quot;)
-mediabetaols=round(mean(betas1[,1]),2)
-mediabetaiv=round(mean(betas1[,2]),2)
-mediabetaiva=round(mean(betas1[,3]),2)
-betas1 &lt;- stack(betas1)
-
-
-ggplot(betas1, aes(x=values)) + 
-  geom_density(aes(group=ind, fill=ind), alpha=0.3)+
-  theme_fivethirtyeight()+ #tema reconocido de la página &quot;fivethirtyeight&quot;
-  theme(panel.grid = element_blank(),
-        axis.line = element_line(colour = &quot;black&quot;), 
-        plot.title = element_text(hjust = 0.5,size=18), 
-        text = element_text(size=18), 
-        axis.title = element_text(),
-        axis.text.x = element_text(angle=60, hjust=1,size=18), 
-        legend.background = element_rect(fill=&quot;gray&quot;, size=0.5, linetype=&quot;solid&quot;, colour = &quot;black&quot;), 
-        legend.text = element_text(size = 18), 
-        legend.position = &quot;right&quot;, legend.direction = &quot;vertical&quot;)+ 
-  scale_fill_manual(labels =  c(&quot;OLS&quot;,&quot;IV&quot;,&quot;IV artificial&quot;),values=c(&quot;#56B4E9&quot;,&quot;#999999&quot;,&quot;#E69F00&quot;))+
-  labs(x=&quot;Estimador&quot;, #agrega etiqueta del eje X
-       y=&quot;Densidad&quot;, #agrega etiqueta del eje y
-       title=&quot;Distribución estimadores&quot;)+
-  guides(fill=guide_legend(title=&quot;Distribución:&quot;)) + 
-  xlim(3.5,6.5) + ylim(0,15)</code></pre>
+<pre class="r"><code>#Se repiten los tres gráficos anteriores, sobreponiéndolos</code></pre>
 <p><img src="2SLS_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
 
