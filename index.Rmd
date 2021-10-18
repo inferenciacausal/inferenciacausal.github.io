@@ -25,6 +25,8 @@ A continuación se presenta un Tutorial de Datos (Data Tutorial). Corresponde a 
 
 En el tutorial se entregan instrucciones, mediante código en R, para que desarrolles la actividad en tu propio computador.
 
+Este sitio fue desarrollado por Andrés Fernández Vergara y Joaquín Roa Llanos.
+
 </div>
 <div class="col-sm-6">
 ![](images/causation.png)
