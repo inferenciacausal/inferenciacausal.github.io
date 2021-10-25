@@ -335,7 +335,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Estimación por Método de Variables Instrumentales - 2SLS</h1>
+<h1 class="title toc-ignore"><strong>Estimación por Método de Variables Instrumentales - 2SLS</strong></h1>
 
 </div>
 
@@ -350,9 +350,9 @@ body {
   text-align: justify;
 }
 </style>
-<p>En este tutorial, procederemos a simular una variable instrumental para evaluar su efectividad al ser utilizada en una estimación de 2SLS.</p>
+<p>En este Data Tutorial procederemos a simular una variable instrumental para evaluar su efectividad al ser utilizada en una estimación de 2SLS. Sigue las instrucciones entregadas y replica el código que estimes relevante para seguir la actividad en tu propio computador. Al terminar la actividad, debes visitar el <a href="https://uchiledii.qualtrics.com/jfe/form/SV_dd6eXhXQSyYi2Ue">enlace de Lecturas</a>.</p>
 <div id="endogeneidad" class="section level1">
-<h1><strong>Endogeneidad</strong></h1>
+<h1><strong>1. Endogeneidad</strong></h1>
 <p>Lo primero que haremos será simular un escenario de dos ecuaciones, que tendrá variables exógenas (generadas por fuera del modelo) y variables endógenas (generadas dentro del modelo). Para eso, pensemos en el siguiente par de ecuaciones (por simplicidad se omite el término constante):</p>
 <p><span class="math display">\[  Y_i = \beta X_i + \lambda Q_i + u_i \hspace{0.3 cm} (1)\]</span></p>
 <p><span class="math display">\[ X_i = \gamma Z_i + \delta Q_i + v_i \hspace{0.3 cm} (2) \]</span></p>
@@ -367,10 +367,9 @@ epsilon &lt;- rmvnorm(n=300, mean=c(0,0), sigma=sigma)
 u_i = epsilon[,1] 
 v_i = epsilon[,2]</code></pre>
 <p>Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (que por construcción sabemos que es <span class="math inline">\(\beta = 5\)</span>). Para chequearlo, correremos 400 simulaciones del caso recién descrito (es decir, repetiremos 400 veces una situación simulada de 300 casos), estimando cada vez <span class="math inline">\((\beta_{OLS})\)</span>.</p>
-<p>Observa qué ocurre en <a href="https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo,%20target=%22_blank%22">este gráfico.</a> cuando se manipula la correlación de los errores ¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?</p>
-<p>Ahora, para el caso de correlación 0,5; miraremos qué ocurre con el sesgo de OLS. ¿Dónde debería estar la media de la distribución del coeficiente, y dónde se encuentre realmente?</p>
-<pre class="r"><code># Para replicar el gráfico
-beta=5
+<p>Observa qué ocurre en <a href="https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo,%20target=%22_blank%22" target="_blank">este gráfico</a> cuando se manipula la correlación de los errores. <strong>¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?</strong>.</p>
+<p>Ahora, para el caso de correlación 0,5; miraremos qué ocurre con el sesgo de OLS. <strong>¿Dónde debería estar la media de la distribución del coeficiente, y dónde se encuentre realmente?</strong>.</p>
+<pre class="r"><code>beta=5
 lambda=1
 gamma=1
 delta=1
@@ -408,7 +407,7 @@ ggplot(as.data.frame(B_OLS)) +
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="variables-instrumentales" class="section level1">
-<h1><strong>Variables Instrumentales</strong></h1>
+<h1><strong>2. Variables Instrumentales</strong></h1>
 <div id="la-eficiencia-limpiando-el-sesgo." class="section level2">
 <h2>La eficiencia limpiando el sesgo.</h2>
 <p>Siguiendo con la simulación de la sección anterior, ya notamos que existe un sesgo en el estimador de OLS, que depende en gran medida de la magnitud de la correlación entre el regresor endógeno (<span class="math inline">\(X_i\)</span>) y el error no observable.</p>
@@ -417,7 +416,7 @@ ggplot(as.data.frame(B_OLS)) +
 <p>Ahora probaremos utilizando la variable <span class="math inline">\(Z_i\)</span> como instrumento de la variable <span class="math inline">\(X_i\)</span>. En nuestra simulación, <span class="math inline">\(Z\)</span> fue construida de forma completamente exógena. Además, fue parte de la definición de <span class="math inline">\(X_i\)</span>, por lo que cumple también con ser un instrumento relevante.</p>
 <p>La función que utilizaremos para realizar 2SLS será:</p>
 <pre class="r"><code>reg_vi &lt;- ivreg(Y ~ X + Q | Z + Q)</code></pre>
-<p>Esta vez, miraremos si la media de la distribución del coeficiente sigue sesgada, pero también nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de un escenario de 300 observaciones. Al mirar el gráfico se puede ver que, la distribución se encuentra centrada en el valor esperado (<span class="math inline">\(\beta = 5\)</span>), pero su varianza es más amplia que el caso OLS. ¿El método de VI logra corregir el sesgo de endogeneidad? ¿Es esperable que la varianza de este estimador sea mayor que la de OLS?</p>
+<p>Esta vez, miraremos si la media de la distribución del coeficiente sigue sesgada, pero también nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de un escenario de 300 observaciones. Al mirar el gráfico se puede ver que, la distribución se encuentra centrada en el valor esperado (<span class="math inline">\(\beta = 5\)</span>), pero su varianza es más amplia que el caso OLS. <strong>¿El método de VI logra corregir el sesgo de endogeneidad? ¿Es esperable que la varianza de este estimador sea mayor que la de OLS?</strong></p>
 <pre class="r"><code>#Se repite gráfico anterior, esta vez guardando:
 reg2&lt;-ivreg(Y~X+Q|Z+Q) #Estimamos el valor de beta y de lambda de las ecuaciones mediante 2SLS
 B_IV[i]&lt;-summary(reg2)$coefficients[2,1] #guardamos betas IV que es cercano a 5 e insesgado</code></pre>
@@ -426,7 +425,7 @@ B_IV[i]&lt;-summary(reg2)$coefficients[2,1] #guardamos betas IV que es cercano a
 </div>
 </div>
 <div id="variable-instrumental-artificial" class="section level1">
-<h1><strong>Variable Instrumental Artificial</strong></h1>
+<h1><strong>3. Variable Instrumental Artificial</strong></h1>
 <div id="creación-de-una-variable-instrumental" class="section level2">
 <h2>Creación de una variable instrumental</h2>
 <p>Ahora, para cada una de las 400 iteraciones, dentro del gran loop, realizaremos otro loop donde simularemos variables <span class="math inline">\(Za_i\)</span> (de 300 registros) hasta encontrar una que esté correlacionada con la variable endógena <span class="math inline">\(X_i\)</span>, a través del siguiente código. Una vez se escoge un vector <span class="math inline">\(Za_i\)</span> que satisface la condición (de relevancia), estimaremos la regresión 2SLS correspondiente y guardaremos el coeficiente <span class="math inline">\(\beta\)</span> para volver a graficar la distribución de este estimador.</p>
@@ -444,18 +443,16 @@ while (significativo == 0) {                      #Se repite el loop hasta que s
 }
 
 #Se repite el gráfico anterior guardando B_IVa</code></pre>
-<p>Al realizar este ejercicio, se grafican los 400 valores del estimador <span class="math inline">\(\beta_Za\)</span>, tal y como se muestra a continuación:</p>
+<p>Al realizar este ejercicio, se grafican los 400 valores del estimador <span class="math inline">\(\beta_Za\)</span>, tal y como se muestra a continuación. <strong>¿La estimación es insesgada? ¿Es más o menos eficiente que OLS y que VI? ¿Crees que funciona utilizar una simulación de un instrumento?</strong></p>
 <p><img src="2SLS_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<p>¿La estimación es insesgada? ¿Es más o menos eficiente que OLS y que VI? ¿Crees que funciona utilizar una simulación de un instrumento?</p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 </div>
-<div id="análisis-conjunto" class="section level1">
-<h1><strong>Análisis conjunto</strong></h1>
+<div id="comparación-iv---ols" class="section level1">
+<h1><strong>4. Comparación IV - OLS</strong></h1>
 <p>Utilizar un instrumento artificial no funciona, pues aunque cada iteración en que se escoge aquella variable <span class="math inline">\(Za_i\)</span> que sí es relevante (porque está correlacionada con <span class="math inline">\(X_i\)</span>), no es posible asegurar que este NO esté correlacionado con el error no observado (<span class="math inline">\(u_i\)</span>). Lo anterior se debe a que la exogeneidad del instrumento (<span class="math inline">\(Cov(Za_i, u_i) = 0\)</span>) es imposible de construir ni de observar. Por lo tanto, para cada caso en que <span class="math inline">\(Za_i\)</span> es relevante, NO puede asegurarse que sea al mismo tiempo exógena en la misma medida. Van a ocurrir casos en que sí, van a ocurrir casos en que no, es por eso que el estimador sigue estando sesgado, y además, es poco eficiente.</p>
-<p>Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos. ¿Qué método entrega una estimación insesgada? ¿Qué método entrega una estimación eficiente?</p>
-<pre class="r"><code>#Se repiten los tres gráficos anteriores, sobreponiéndolos</code></pre>
-<p><img src="2SLS_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos. <strong>¿Qué método entrega una estimación insesgada? ¿Qué método entrega una estimación eficiente?</strong></p>
+<p><img src="2SLS_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
 
 

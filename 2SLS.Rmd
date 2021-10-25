@@ -1,5 +1,5 @@
 ---
-title: "Estimación por Método de Variables Instrumentales - 2SLS"
+title: "**Estimación por Método de Variables Instrumentales - 2SLS**"
 output:
   html_document:
     toc: true
@@ -39,9 +39,10 @@ knitr::opts_chunk$set(echo = FALSE)
 set.seed(12345)
 ```
 
-En este tutorial, procederemos a simular una variable instrumental para evaluar su efectividad al ser utilizada en una estimación de 2SLS. 
+En este Data Tutorial procederemos a simular una variable instrumental para evaluar su efectividad al ser utilizada en una estimación de 2SLS. Sigue las instrucciones entregadas y replica el código que estimes relevante para seguir la actividad en tu propio computador. Al terminar la actividad, debes visitar el [enlace de Lecturas](https://uchiledii.qualtrics.com/jfe/form/SV_dd6eXhXQSyYi2Ue).
 
-# **Endogeneidad**
+
+# **1. Endogeneidad**
 Lo primero que haremos será simular un escenario de dos ecuaciones, que tendrá variables exógenas (generadas por fuera del modelo) y variables endógenas (generadas dentro del modelo). Para eso, pensemos en el siguiente par de ecuaciones (por simplicidad se omite el término constante):
 
 $$  Y_i = \beta X_i + \lambda Q_i + u_i \hspace{0.3 cm} (1)$$
@@ -71,12 +72,11 @@ v_i = epsilon[,2]
 
 Al estimar con OLS esta situación, es esperable que entregue un estimador sesgado, es decir, que su valor esperado no esté en el valor real (que por construcción sabemos que es $\beta = 5$). Para chequearlo, correremos 400 simulaciones del caso recién descrito (es decir, repetiremos 400 veces una situación simulada de 300 casos), estimando cada vez $(\beta_{OLS})$.
 
-Observa qué ocurre en [este gráfico.](https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo, target=\"_blank\") cuando se manipula la correlación de los errores ¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?
+Observa qué ocurre en [este gráfico](https://a2ic.shinyapps.io/grafico_errores_sesgo/#section-gráfico-interactivo, target=\"_blank\"){target="_blank"} cuando se manipula la correlación de los errores. **¿Cuál es la relación entre la correlación de los errores simulados y el sesgo?**.
 
-Ahora, para el caso de correlación 0,5; miraremos qué ocurre con el sesgo de OLS. ¿Dónde debería estar la media de la distribución del coeficiente, y dónde se encuentre realmente?
+Ahora, para el caso de correlación 0,5; miraremos qué ocurre con el sesgo de OLS. **¿Dónde debería estar la media de la distribución del coeficiente, y dónde se encuentre realmente?**.
 
 ```{r, echo=TRUE, eval=TRUE}
-# Para replicar el gráfico
 beta=5
 lambda=1
 gamma=1
@@ -121,7 +121,7 @@ $$\\[1in]$$
 
 
 
-# **Variables Instrumentales** 
+# **2. Variables Instrumentales** 
 
 ## La eficiencia limpiando el sesgo.
 
@@ -139,7 +139,7 @@ La función que utilizaremos para realizar 2SLS será:
 reg_vi <- ivreg(Y ~ X + Q | Z + Q)
 ````
 
-Esta vez, miraremos si la media de la distribución del coeficiente sigue sesgada, pero también nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de un escenario de 300 observaciones. Al mirar el gráfico se puede ver que, la distribución se encuentra centrada en el valor esperado ($\beta = 5$), pero su varianza es más amplia que el caso OLS. ¿El método de VI logra corregir el sesgo de endogeneidad? ¿Es esperable que la varianza de este estimador sea mayor que la de OLS?
+Esta vez, miraremos si la media de la distribución del coeficiente sigue sesgada, pero también nos concentraremos en la varianza de nuestro estimador. La simulación genera 400 iteraciones de un escenario de 300 observaciones. Al mirar el gráfico se puede ver que, la distribución se encuentra centrada en el valor esperado ($\beta = 5$), pero su varianza es más amplia que el caso OLS. **¿El método de VI logra corregir el sesgo de endogeneidad? ¿Es esperable que la varianza de este estimador sea mayor que la de OLS?**
 
 
 ```{r, echo=TRUE, eval = FALSE}
@@ -194,7 +194,7 @@ $$\\[1in]$$
 
 
 
-# **Variable Instrumental Artificial** 
+# **3. Variable Instrumental Artificial** 
 
 ## Creación de una variable instrumental
 
@@ -217,7 +217,7 @@ while (significativo == 0) {                      #Se repite el loop hasta que s
 #Se repite el gráfico anterior guardando B_IVa
 ````
 
-Al realizar este ejercicio, se grafican los 400 valores del estimador $\beta_Za$, tal y como se muestra a continuación:
+Al realizar este ejercicio, se grafican los 400 valores del estimador $\beta_Za$, tal y como se muestra a continuación. **¿La estimación es insesgada? ¿Es más o menos eficiente que OLS y que VI? ¿Crees que funciona utilizar una simulación de un instrumento?**
 
 
 ```{r,echo=FALSE, warning=FALSE, eval=TRUE}
@@ -265,23 +265,17 @@ for(i in 1:400){ #hacemos 400 simulaciones
        title="Distribución estimador IV artificial")
 ```
 
-¿La estimación es insesgada? ¿Es más o menos eficiente que OLS y que VI? ¿Crees que funciona utilizar una simulación de un instrumento?
+
 
 $$\\[1in]$$
 
 
 
-# **Análisis conjunto**
+# **4. Comparación IV - OLS**
 
 Utilizar un instrumento artificial no funciona, pues aunque cada iteración en que se escoge aquella variable $Za_i$ que sí es relevante (porque está correlacionada con $X_i$), no es posible asegurar que este NO esté correlacionado con el error no observado ($u_i$). Lo anterior se debe a que la exogeneidad del instrumento ($Cov(Za_i, u_i) = 0$) es imposible de construir ni de observar. Por lo tanto, para cada caso en que $Za_i$ es relevante, NO puede asegurarse que sea al mismo tiempo exógena en la misma medida. Van a ocurrir casos en que sí, van a ocurrir casos en que no, es por eso que el estimador sigue estando sesgado, y además, es poco eficiente.
 
-Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos. ¿Qué método entrega una estimación insesgada? ¿Qué método entrega una estimación eficiente?
-
-
-```{r, echo=TRUE}
-#Se repiten los tres gráficos anteriores, sobreponiéndolos
-
-```
+Esto se puede ver en el gráfico que junta las tres distribuciones para los escenarios simulados: OLS, VI, VI-artificial. Analice los gráficos. **¿Qué método entrega una estimación insesgada? ¿Qué método entrega una estimación eficiente?**
 
 ```{r, echo=FALSE, eval=TRUE}
 #Se inicializan los indicadores de acuerdo a lo propuesto en las ecuaciones
