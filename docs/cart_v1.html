@@ -512,7 +512,11 @@ my_data_train = my_data %&gt;% sample_frac(0.70)
 # División de los datos: test, separando de la muestra completa lo que no es entrenamiento.
 my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 <p>No hay un valor predeterminado para escoger en cuanto a la separación de la muestra. Puede utilizarse una separación de 50/50 como una de 99/1, sin embargo, se debe tener en cuenta de que a mayor muestra de entrenamiento existe mayor riesgo de sobreajustar el modelo, y a menor muestra de entrenamiento comienza a ocurrir un riesgo de subajuste del modelo.</p>
-<p><span class="math display">\[\\[1in]\]</span> # <strong>2. Estimación</strong></p>
+<p><span class="math display">\[\\[1in]\]</span></p>
+</div>
+</div>
+<div id="estimación" class="section level1">
+<h1><strong>2. Estimación</strong></h1>
 <p>La metodología de árboles de decisión está implementada en el paquete <em>rpart</em> del prgrama <em>R</em>. La función principal es <em>rpart()</em> y habitualmente se emplea de la siguiente forma:</p>
 <pre class="r"><code>rpart(formula=, data=, method=, control=, ...)</code></pre>
 <p>Donde:</p>
@@ -531,7 +535,11 @@ my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 <p>En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de <span class="math inline">\(Y\)</span> (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Bajo el gráfico se presenta el MSE del árbol completo. Recordamos que este indicador tiene la forma <span class="math inline">\(MSE = \sum^N_i (y_i - \hat(y)_i)^2\)</span>. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato (en la muestra de evaluación o de entrenamiento).</p>
 <pre><code>## [1] &quot;0.2015&quot;</code></pre>
 <p><img src="cart_v1_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<p><span class="math display">\[\\[1in]\]</span> # <strong>3. Buscando el número óptimo de hojas</strong> Al variar el ponderador de costo de complejidad, varía el largo del árbol. Para cada valor de costo <span class="math inline">\(cp\)</span> se genera un árbol, y por lo tanto, se puede estimar la efectividad de cada árbol de predicción de acuerdo al indicador <span class="math inline">\(cp\)</span>. Esta efectividad puede medirse a partir del valor de la <span class="math inline">\(K-fold Cross Validation\)</span>. Esto consiste en tomar K divisiones y entrenar el modelo con todos menos el K-ésimo grupo; en cambio, el grupo número K se utiliza para evaluar el modelo. Luego se promedian los K valores de MSE evaluados para obtener un valor del proceso.</p>
+<p><span class="math display">\[\\[1in]\]</span></p>
+</div>
+<div id="buscando-el-número-óptimo-de-hojas" class="section level1">
+<h1><strong>3. Buscando el número óptimo de hojas</strong></h1>
+<p>Al variar el ponderador de costo de complejidad, varía el largo del árbol. Para cada valor de costo <span class="math inline">\(cp\)</span> se genera un árbol, y por lo tanto, se puede estimar la efectividad de cada árbol de predicción de acuerdo al indicador <span class="math inline">\(cp\)</span>. Esta efectividad puede medirse a partir del valor de la <span class="math inline">\(K-fold Cross Validation\)</span>. Esto consiste en tomar K divisiones y entrenar el modelo con todos menos el K-ésimo grupo; en cambio, el grupo número K se utiliza para evaluar el modelo. Luego se promedian los K valores de MSE evaluados para obtener un valor del proceso.</p>
 <p>Lo que haremos entonces será graficar el valor de <span class="math inline">\(K-fold CV\)</span> de evaluación para cada uno de los árboles generados por los valores de <span class="math inline">\(cp\)</span> y su número de nodos. Puedes variar el número <span class="math inline">\(K\)</span> que quieras darle a la validación. A mayor número de validaciones cruzadas, aumenta la carga computacional y el tiempo que tarda en el cálculo.</p>
 <p><img src="cart_v1_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <pre><code>## NULL</code></pre>
@@ -720,12 +728,14 @@ my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 ## 168 0.00010000    336   0.88022 0.99002 0.0060398</code></pre>
 <pre><code>##      CP       Núm de hojas
 ## [1,] &quot;0.0003&quot; &quot;23&quot;</code></pre>
-<p>El gráfico presenta el valor de la validación cruzada <em>K-fold Cross-Validation</em>, que puede leerse como una aproximación del MSE de evaluación. Por lo tanto, debe utilizarse el número de hojas que minimice el valor de la evaluación. <span class="math display">\[\\[1in]\]</span> # <strong>4. Quedarse con el árbol podado</strong></p>
+<p>El gráfico presenta el valor de la validación cruzada <em>K-fold Cross-Validation</em>, que puede leerse como una aproximación del MSE de evaluación. Por lo tanto, debe utilizarse el número de hojas que minimice el valor de la evaluación. <span class="math display">\[\\[1in]\]</span></p>
+</div>
+<div id="quedarse-con-el-árbol-podado" class="section level1">
+<h1><strong>4. Quedarse con el árbol podado</strong></h1>
 <p>Ahora que hemos seleccionado el número óptimo de hojas, lo que resta es armar el subárbol hasta ese valor de hojas, estimar las predicciones y calcular el valor de MSE. Esto se puede hacer mediante la función <span class="math inline">\(prune.rpart\)</span> en <em>R</em>.</p>
 <p><img src="cart_v1_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="cart_v1_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
 <pre><code>## [1] &quot;0.2024&quot;</code></pre>
 <p>Y ahora, algunas preguntas finales.</p>
-</div>
 </div>
 
 
