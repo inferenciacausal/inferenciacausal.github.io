@@ -68,7 +68,6 @@ select <- dplyr::select
 set.seed(12345)
 ```
 
-$$\\[1in]$$
 # **1. Árboles de decisión**
 
 ## Objetivo
