@@ -371,26 +371,17 @@ table, th, td {
     font-size: 12px;
 }
 </style>
-<div id="árboles-de-decisión" class="section level2">
-<h2><strong>Árboles de decisión</strong></h2>
-<div id="objetivo" class="section level3">
-<h3>Objetivo</h3>
+<div id="árboles-de-decisión" class="section level1">
+<h1><strong>1. Árboles de decisión</strong></h1>
+<div id="objetivo" class="section level2">
+<h2>Objetivo</h2>
 <p>En este módulo estudiaremos el uso de árboles de decisión para problemas de regresión y clasificación como modelo predictivo de Machine Learning.</p>
 </div>
-<div id="data" class="section level3">
-<h3>Data</h3>
+<div id="data" class="section level2">
+<h2>Data</h2>
 <p>Los datos provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) (<a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf">Ver el artículo</a>). El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento (<span class="math inline">\(W\)</span>), respuesta (<span class="math inline">\(Y\)</span>) y características observables de los votantes (<span class="math inline">\(X\)</span>).</p>
 <p>En la base, mostrada a continuación, <span class="math inline">\(Y\)</span> es la variable de resultado (votar o no votar) en la elección general del año 2004, <span class="math inline">\(W\)</span> es la variable de tratamiento (carta recibida) y el resto de las variables son covariables <span class="math inline">\(X\)</span>, principalmente sobre el comportamiento de voto en elecciones anteriores.</p>
 <p>A continuación vemos una vista previa de la base de datos:</p>
-<pre><code>## New names:
-## * `` -&gt; ...1</code></pre>
-<pre><code>## Rows: 344084 Columns: 16</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## dbl (16): ...1, X1, id, cluster, hh_id, hh_size, Y, W, sex, yob, g2000, g200...</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre><code>## # A tibble: 40,000 × 16
 ##      ...1     X1     id cluster  hh_id hh_size     Y     W sex     yob g2000
 ##     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;dbl&gt; &lt;fct&gt;
@@ -512,8 +503,8 @@ Porcentaje de votación en su estado para la elección primaria 2004
 </tbody>
 </table>
 </div>
-<div id="división-de-la-información" class="section level3">
-<h3>División de la información</h3>
+<div id="división-de-la-información" class="section level2">
+<h2>División de la información</h2>
 <p>Para fines de modelar el comportamiento de votación, dividimos la base de datos en un 70% para el ajuste de un árbol de decisión y un 30% para la predicción de un árbol de decisión.</p>
 <pre class="r"><code># División de los datos: entrenamiento con 70%
 my_data_train = my_data %&gt;% sample_frac(0.70)
@@ -523,8 +514,8 @@ my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 <p>No hay un valor predeterminado para escoger en cuanto a la separación de la muestra. Puede utilizarse una separación de 50/50 como una de 99/1, sin embargo, se debe tener en cuenta de que a mayor muestra de entrenamiento existe mayor riesgo de sobreajustar el modelo, y a menor muestra de entrenamiento comienza a ocurrir un riesgo de subajuste del modelo.</p>
 </div>
 </div>
-<div id="estimación" class="section level2">
-<h2>Estimación</h2>
+<div id="estimación" class="section level1">
+<h1><strong>2. Estimación</strong></h1>
 <p>La metodología de árboles de decisión está implementada en el paquete <em>rpart</em> del prgrama <em>R</em>. La función principal es <em>rpart()</em> y habitualmente se emplea de la siguiente forma:</p>
 <pre class="r"><code>rpart(formula=, data=, method=, control=, ...)</code></pre>
 <p>Donde:</p>
@@ -542,13 +533,13 @@ my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 <p>A continuación, usted podrá implementar un árbol de decisión, considerando todas las covariables para explicar <span class="math inline">\(Y\)</span>, variando el parámetros <span class="math inline">\(cp\)</span>. El parámetro <span class="math inline">\(minbucket\)</span> se fijará en 10. Observe lo que ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización.</p>
 <p>En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de <span class="math inline">\(Y\)</span> (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Bajo el gráfico se presenta el MSE del árbol completo. Recordamos que este indicador tiene la forma <span class="math inline">\(MSE = \sum^N_i (y_i - \hat(y)_i)^2\)</span>. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato (en la muestra de evaluación o de entrenamiento).</p>
 <pre><code>## [1] &quot;0.2015&quot;</code></pre>
-<p><img src="cart_v1_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="cart_v1_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 </div>
-<div id="buscando-el-número-óptimo-de-hojas" class="section level2">
-<h2>Buscando el número óptimo de hojas</h2>
+<div id="buscando-el-número-óptimo-de-hojas" class="section level1">
+<h1>3. <strong>Buscando el número óptimo de hojas</strong></h1>
 <p>Al variar el ponderador de costo de complejidad, varía el largo del árbol. Para cada valor de costo <span class="math inline">\(cp\)</span> se genera un árbol, y por lo tanto, se puede estimar la efectividad de cada árbol de predicción de acuerdo al indicador <span class="math inline">\(cp\)</span>. Esta efectividad puede medirse a partir del valor de la <span class="math inline">\(K-fold Cross Validation\)</span>. Esto consiste en tomar K divisiones y entrenar el modelo con todos menos el K-ésimo grupo; en cambio, el grupo número K se utiliza para evaluar el modelo. Luego se promedian los K valores de MSE evaluados para obtener un valor del proceso.</p>
 <p>Lo que haremos entonces será graficar el valor de <span class="math inline">\(K-fold CV\)</span> de evaluación para cada uno de los árboles generados por los valores de <span class="math inline">\(cp\)</span> y su número de nodos. Puedes variar el número <span class="math inline">\(K\)</span> que quieras darle a la validación. A mayor número de validaciones cruzadas, aumenta la carga computacional y el tiempo que tarda en el cálculo.</p>
-<p><img src="cart_v1_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="cart_v1_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <pre><code>## NULL</code></pre>
 <pre><code>## 
 ## Regression tree:
@@ -737,10 +728,10 @@ my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 ## [1,] &quot;0.0003&quot; &quot;23&quot;</code></pre>
 <p>El gráfico presenta el valor de la validación cruzada <em>K-fold Cross-Validation</em>, que puede leerse como una aproximación del MSE de evaluación. Por lo tanto, debe utilizarse el número de hojas que minimice el valor de la evaluación.</p>
 </div>
-<div id="quedarse-con-el-árbol-podado" class="section level2">
-<h2>Quedarse con el árbol podado</h2>
+<div id="quedarse-con-el-árbol-podado" class="section level1">
+<h1><strong>4. Quedarse con el árbol podado</strong></h1>
 <p>Ahora que hemos seleccionado el número óptimo de hojas, lo que resta es armar el subárbol hasta ese valor de hojas, estimar las predicciones y calcular el valor de MSE. Esto se puede hacer mediante la función <span class="math inline">\(prune.rpart\)</span> en <em>R</em>.</p>
-<p><img src="cart_v1_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="cart_v1_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<p><img src="cart_v1_files/figure-html/unnamed-chunk-4-1.png" width="672" /><img src="cart_v1_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
 <pre><code>## [1] &quot;0.2024&quot;</code></pre>
 <p>Y ahora, algunas preguntas finales.</p>
 </div>

@@ -69,13 +69,13 @@ set.seed(12345)
 ```
 
 
-## **Árboles de decisión**
+# **1. Árboles de decisión**
 
-### Objetivo
+## Objetivo
 
 En este módulo estudiaremos el uso de árboles de decisión para problemas de regresión y clasificación como modelo predictivo de Machine Learning.  
 
-### Data
+## Data
 
 Los datos provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) ([Ver el artículo](https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf)). El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento ($W$), respuesta ($Y$) y características observables de los votantes ($X$).
 
@@ -83,8 +83,7 @@ En la base, mostrada a continuación, $Y$ es la variable de resultado (votar o n
 
 A continuación vemos una vista previa de la base de datos:
 
-```{r}
-#init, echo=FALSE, message = FALSE, warning=FALSE}
+```{r init, echo=FALSE, message = FALSE, warning=FALSE}
 # Cargamos los datos
 my_data <- read_delim("social_voting.csv", ",", escape_double = FALSE, trim_ws = TRUE)
 # Escogemos una muestra aleatoria del total
@@ -115,7 +114,7 @@ column_spec(1, bold = T, color = "black") %>%
 column_spec(2, width = "50em") 
 ```
 
-### División de la información
+## División de la información
 
 Para fines de modelar el comportamiento de votación, dividimos la base de datos en un 70% para el ajuste de un árbol de decisión y un 30% para la predicción de un árbol de decisión. 
 
@@ -131,7 +130,7 @@ my_data_test = anti_join(my_data, my_data_train, by = 'id')
 No hay un valor predeterminado para escoger en cuanto a la separación de la muestra. Puede utilizarse una separación de 50/50 como una de 99/1, sin embargo, se debe tener en cuenta de que a mayor muestra de entrenamiento existe mayor riesgo de sobreajustar el modelo, y a menor muestra de entrenamiento comienza a ocurrir un riesgo de subajuste del modelo.
 
 
-## Estimación
+# **2. Estimación**
 
 La metodología de árboles de decisión está implementada en el paquete *rpart* del prgrama *R*. La función principal es *rpart()* y habitualmente se emplea de la siguiente forma:
 
@@ -187,7 +186,7 @@ rpart.plot(tree, main="Árbol de decisión: *Social Pressure and Voter Turnout*"
 ```
 
 
-## Buscando el número óptimo de hojas
+# 3. **Buscando el número óptimo de hojas**
 Al variar el ponderador de costo de complejidad, varía el largo del árbol. Para cada valor de costo $cp$ se genera un árbol, y por lo tanto, se puede estimar la efectividad de cada árbol de predicción de acuerdo al indicador $cp$. Esta efectividad puede medirse a partir del valor de la $K-fold Cross Validation$. Esto consiste en tomar K divisiones y entrenar el modelo con todos menos el K-ésimo grupo; en cambio, el grupo número K se utiliza para evaluar el modelo. Luego se promedian los K valores de MSE evaluados para obtener un valor del proceso. 
 
 Lo que haremos entonces será graficar el valor de $K-fold CV$ de evaluación para cada uno de los árboles generados por los valores de $cp$ y su número de nodos. Puedes variar el número $K$ que quieras darle a la validación. A mayor número de validaciones cruzadas, aumenta la carga computacional y el tiempo que tarda en el cálculo.
@@ -226,7 +225,7 @@ C
 
 El gráfico presenta el valor de la validación cruzada *K-fold Cross-Validation*, que puede leerse como una aproximación del MSE de evaluación. Por lo tanto, debe utilizarse el número de hojas que minimice el valor de la evaluación.
 
-## Quedarse con el árbol podado
+# **4. Quedarse con el árbol podado**
 
 Ahora que hemos seleccionado el número óptimo de hojas, lo que resta es armar el subárbol hasta ese valor de hojas, estimar las predicciones y calcular el valor de MSE. Esto se puede hacer mediante la función $prune.rpart$ en *R*.
 
