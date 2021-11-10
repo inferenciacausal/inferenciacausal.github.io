@@ -164,7 +164,7 @@ rpart.control(cp = , minsplit = , minbucket = , ...)
 
 A continuación, usted podrá implementar un árbol de decisión, considerando todas las covariables para explicar $Y$. Comience fijando el parámetro $minbucket$ en 10 y $cp$ en $0.001$. ¿Qué ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización.?
 
-En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de $Y$ (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Sobre el gráfico se presenta el MSE del árbol completo. Recuerda que este indicador tiene la forma $MSE = \sum^N_i (y_i - \hat(y)_i)^2$. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato, en la muestra de evaluación o de entrenamiento.
+En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de $Y$ (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Sobre el gráfico se presenta el $MSE$ del árbol completo. Recuerda que este indicador tiene la forma $MSE = \sum^N_i (y_i - \hat(y)_i)^2$. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato, en la muestra de evaluación o de entrenamiento.
 
 
 ```{r, echo=TRUE,eval=TRUE}
@@ -180,7 +180,8 @@ colnames(MSE) <- c("MSE")
 MSE <- sprintf("%5.4f", MSE)
 MSE
 ```
-```{r}
+
+```{r,echo=TRUE,eval=TRUE}
 my_data_train = my_data %>% sample_frac(0.70)
 my_data_test = anti_join(my_data, my_data_train, by = 'id')
 tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
@@ -200,12 +201,12 @@ $$\\[1in]$$
 
 
 # **3. Buscando el número óptimo de hojas**
-Al variar el ponderador de costo de complejidad, varía el largo del árbol. Para cada valor de costo $cp$ se genera un árbol, y por lo tanto, se puede estimar la efectividad de cada árbol de predicción de acuerdo al indicador $cp$. Esta efectividad puede medirse a partir del valor de la $K-fold Cross Validation$. Esto consiste en tomar K divisiones y entrenar el modelo con todos menos el K-ésimo grupo; en cambio, el grupo número K se utiliza para evaluar el modelo. Luego se promedian los K valores de MSE evaluados para obtener un valor del proceso. 
+Al variar el ponderador de costo de complejidad, varía el largo del árbol. Para cada valor de costo $cp$ se genera un árbol, y por lo tanto, se puede estimar la efectividad de cada árbol de predicción de acuerdo al indicador $cp$. Esta efectividad puede medirse a partir del valor de la $K-fold Cross Validation$. Esto consiste en tomar $K$ divisiones y entrenar el modelo con todos menos el $K$-ésimo grupo; en cambio, el grupo número $K$ se utiliza para evaluar el modelo. Luego se promedian los $K$ valores de $MSE$ evaluados para obtener un valor del proceso. 
 
-Lo que haremos entonces será graficar el valor de $K-fold CV$ de evaluación para cada uno de los árboles generados por los valores de $cp$ y su número de nodos. Puedes variar el número $K$ que quieras darle a la validación. A mayor número de validaciones cruzadas, aumenta la carga computacional y el tiempo que tarda en el cálculo.
+Lo que haremos entonces será graficar el valor de $K-fold CV$ de evaluación para cada uno de los árboles generados por los valores de $cp$ y su número de nodos. ¿Qué ocurrirá si aumenta el valor de $K$?
 
 
-```{r}
+```{r,eval=TRUE,echo=TRUE}
 set.seed(12345)
 my_data_train = my_data %>% sample_frac(0.70)
 my_data_test = anti_join(my_data, my_data_train, by = 'id')
@@ -219,8 +220,7 @@ p
 
 ```
 
-```{r,echo=FALSE}
-
+```{r,echo=TRUE}
 my_data_train = my_data %>% sample_frac(0.70)
 my_data_test = anti_join(my_data, my_data_train, by = 'id')
 tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
@@ -228,7 +228,7 @@ tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_da
                                    minbucket = 10,
                                    cp = 0.0001
                                    ))
-B <- printcp(tree)
+#B <- printcp(tree)
 A <- as.data.frame(B)
 C <- cbind(as.numeric(A[A$xerror == min(B[,4]), 1]), as.numeric(A[A$xerror == min(B[,4]), 2]))
 colnames(C) <- c("CP", "Núm de hojas")
@@ -254,8 +254,7 @@ $$\\[1in]$$
 Ahora que hemos seleccionado el número óptimo de hojas, lo que resta es armar el subárbol hasta ese valor de hojas, estimar las predicciones y calcular el valor de MSE. Esto se puede hacer mediante la función $prune.rpart$ en *R*.
 
 
-````{r}
-#final_server, context = "server"}
+````{r,echo=TRUE}
 my_data_train = my_data %>% sample_frac(0.7)
 my_data_test = anti_join(my_data, my_data_train, by = 'id')
 tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
@@ -280,28 +279,15 @@ MSEf <- sprintf("%5.4f", MSEf)
 MSEf
 ````
 
-Y ahora, algunas preguntas finales.
+### Preguntas
 
-```{r quiz}
-#quiz(caption = "Preguntas",
-#  question("¿Mejoró el MSE entre los primeros árboles estimados y los podados?",
-#    answer("Sí", correct = FALSE),
-#     answer("No", correct = TRUE),
-#     try_again_button = "Revisa los valores reportados",
-#     incorrect = "Incorrecto",
-#     allow_retry = TRUE
-#   ),
-#   
-#   question("¿Cuál de las siguientes afirmaciones es FALSA?",
-#            answer("Al aumentar la penalización de complejidad (cp) disminuye la longitud del árbol", correct = FALSE),
-#            answer("Los árboles de decisión son muy sensibles a cambios en la muestra de entrenamiento", correct = FALSE), 
-#            answer("El método de K validaciones cruzadas permite aproximarse al error MSE de evaluación", correct = FALSE),
-#            answer("Los árboles de decisiones sólo sirven para variables de clasificación binaria", correct = TRUE),
-#            try_again_button = "Intenta de nuevo", 
-#            incorrect = "Incorrecto",
-#            allow_retry = TRUE
-#            )
-# )
+1. ¿Mejoró el MSE entre los primeros árboles estimados y los podados?
 
-```
+2. ¿Disminuye la longitud del árbol al aumentar la penalización de complejidad?
+
+3. ¿Qué tan sensibles son los árboles de decisión a cambios en la muestra de entrenamiento?
+
+4. ¿El método de $K$ validaciones cruzadas permite aproximarse al error $MSE$ de evaluación?
+
+5. ¿Los árboles de decisiones sólo sirven para problemas de clasificación binaria?
 
