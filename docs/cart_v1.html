@@ -352,25 +352,6 @@ div.tocify {
 }
 body {
 text-align: justify;
-<!--
-font-family: Helvetica;
-  font-size: 12pt;}
-h1{
-  font-size: 24pt;
-}
-h2{
-  font-size: 20pt;
-}
-h3{
-  font-size: 16pt;
-}
-h4{
-  font-size: 14pt;
-}
-
-table, th, td {
-    font-size: 12px;
-    -->
 }
 </style>
 <p>En este Data Tutorial estudiaremos el uso de árboles de decisión para problemas de regresión y clasificación. Sigue las instrucciones entregadas y replica el código que estimes relevante para seguir la actividad en tu propio computador. Al terminar la actividad, debes visitar el <a href="https://uchiledii.qualtrics.com/jfe/form/SV_dd6eXhXQSyYi2Ue">enlace de Lecturas</a>.</p>
@@ -379,21 +360,258 @@ table, th, td {
 <p>Los datos provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) (<a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf">Ver el artículo</a>). El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento (<span class="math inline">\(W\)</span>), respuesta (<span class="math inline">\(Y\)</span>) y características observables de los votantes (<span class="math inline">\(X\)</span>).</p>
 <p>En la base, mostrada a continuación, <span class="math inline">\(Y\)</span> es la variable de resultado (votar o no votar) en la elección general del año 2004, <span class="math inline">\(W\)</span> es la variable de tratamiento (carta recibida) y el resto de las variables son covariables <span class="math inline">\(X\)</span>, principalmente sobre el comportamiento de voto en elecciones anteriores.</p>
 <p>A continuación vemos una vista previa de la base de datos:</p>
-<pre><code>## # A tibble: 40,000 × 16
-##      ...1     X1     id cluster  hh_id hh_size     Y     W   sex   yob g2000
-##     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-##  1 207512 207512 207512    6036 108633       2     0     0     1  1986     0
-##  2  98909  98909  98909    2848  51252       1     0     0     0  1961     1
-##  3 195936 195936 195936    5688 102384       1     1     0     1  1951     1
-##  4 327755 327755 327755    9501 171008       1     1     1     0  1950     1
-##  5  62368  62368  62368    1798  32358       2     1     1     0  1963     1
-##  6  25548  25548  25548     750  13493       2     0     0     1  1957     0
-##  7 232264 232264 232264    6766 121780       2     0     0     0  1948     1
-##  8  97292  97292  97292    2802  50420       3     0     1     0  1984     0
-##  9 131465 131465 131465    3793  68266       1     1     0     0  1931     1
-## 10 124791 124791 124791    3597  64740       1     1     1     0  1934     1
-## # … with 39,990 more rows, and 5 more variables: g2002 &lt;dbl&gt;, p2000 &lt;dbl&gt;,
-## #   p2002 &lt;dbl&gt;, p2004 &lt;dbl&gt;, p2004_mean &lt;dbl&gt;</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+…1
+</th>
+<th style="text-align:right;">
+X1
+</th>
+<th style="text-align:right;">
+id
+</th>
+<th style="text-align:right;">
+cluster
+</th>
+<th style="text-align:right;">
+hh_id
+</th>
+<th style="text-align:right;">
+hh_size
+</th>
+<th style="text-align:right;">
+Y
+</th>
+<th style="text-align:right;">
+W
+</th>
+<th style="text-align:right;">
+sex
+</th>
+<th style="text-align:right;">
+yob
+</th>
+<th style="text-align:right;">
+g2000
+</th>
+<th style="text-align:right;">
+g2002
+</th>
+<th style="text-align:right;">
+p2000
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+207512
+</td>
+<td style="text-align:right;">
+207512
+</td>
+<td style="text-align:right;">
+207512
+</td>
+<td style="text-align:right;">
+6036
+</td>
+<td style="text-align:right;">
+108633
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1986
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+98909
+</td>
+<td style="text-align:right;">
+98909
+</td>
+<td style="text-align:right;">
+98909
+</td>
+<td style="text-align:right;">
+2848
+</td>
+<td style="text-align:right;">
+51252
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1961
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+195936
+</td>
+<td style="text-align:right;">
+195936
+</td>
+<td style="text-align:right;">
+195936
+</td>
+<td style="text-align:right;">
+5688
+</td>
+<td style="text-align:right;">
+102384
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1951
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+327755
+</td>
+<td style="text-align:right;">
+327755
+</td>
+<td style="text-align:right;">
+327755
+</td>
+<td style="text-align:right;">
+9501
+</td>
+<td style="text-align:right;">
+171008
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1950
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+62368
+</td>
+<td style="text-align:right;">
+62368
+</td>
+<td style="text-align:right;">
+62368
+</td>
+<td style="text-align:right;">
+1798
+</td>
+<td style="text-align:right;">
+32358
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1963
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
 <table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
 <caption style="font-size: initial !important;">
 <b>Tabla 1:</b> Descripción de la Base de Datos de <em>Social Pressure and Voter Turnout</em>
@@ -510,7 +728,7 @@ my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 </div>
 <div id="estimación" class="section level1">
 <h1><strong>2. Estimación</strong></h1>
-<p>La metodología de árboles de decisión está implementada en el paquete <code>rpart</code> del programa <em>R</em>. La función principal es <em>rpart( )</em> y habitualmente se emplea de la siguiente forma:</p>
+<p>La metodología de árboles de decisión está implementada en el paquete <code>rpart</code> del programa <em>R</em>. La función principal es <code>rpart( )</code> y habitualmente se emplea de la siguiente forma:</p>
 <pre class="r"><code>rpart(formula=, data=, method=, control=, ...)</code></pre>
 <p>Donde:</p>
 <ul>
@@ -527,8 +745,6 @@ my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 <p>A continuación, usted podrá implementar un árbol de decisión, considerando todas las covariables para explicar <span class="math inline">\(Y\)</span>. Comience fijando el parámetro <span class="math inline">\(minbucket\)</span> en 10 y <span class="math inline">\(cp\)</span> en <span class="math inline">\(0.001\)</span>. ¿Qué ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización.?</p>
 <p>En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de <span class="math inline">\(Y\)</span> (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Sobre el gráfico se presenta el <span class="math inline">\(MSE\)</span> del árbol completo. Recuerda que este indicador tiene la forma <span class="math inline">\(MSE = \sum^N_i (y_i - \hat(y)_i)^2\)</span>. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato, en la muestra de evaluación o de entrenamiento.</p>
 <pre class="r"><code>set.seed(12345)
-my_data_train = my_data %&gt;% sample_frac(0.70)
-my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)
 tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
            control = rpart.control(minbucket = 10, 
                                    cp = 0.001))
@@ -538,13 +754,7 @@ colnames(MSE) &lt;- c(&quot;MSE&quot;)
 MSE &lt;- sprintf(&quot;%5.4f&quot;, MSE)
 MSE</code></pre>
 <pre><code>## [1] &quot;0.2015&quot;</code></pre>
-<pre class="r"><code>my_data_train = my_data %&gt;% sample_frac(0.70)
-my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)
-tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
-             control = rpart.control(minbucket = 10, 
-                                     cp = 0.001))
-
-rpart.plot(tree, main=&quot;Árbol de decisión: Social Pressure and Voter Turnout&quot;,box.palette=&quot;RdBu&quot;, shadow.col=&quot;gray&quot;, nn=TRUE, branch.lty = 3)</code></pre>
+<pre class="r"><code>rpart.plot(tree, main=&quot;Árbol de decisión: Social Pressure and Voter Turnout&quot;,box.palette=&quot;RdBu&quot;, shadow.col=&quot;gray&quot;, nn=TRUE, branch.lty = 3)</code></pre>
 <p><img src="cart_v1_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
@@ -552,24 +762,14 @@ rpart.plot(tree, main=&quot;Árbol de decisión: Social Pressure and Voter Turno
 <h1><strong>3. Buscando el número óptimo de hojas</strong></h1>
 <p>Al variar el ponderador de costo de complejidad, varía el largo del árbol. Para cada valor de costo <span class="math inline">\(cp\)</span> se genera un árbol, y por lo tanto, se puede estimar la efectividad de cada árbol de predicción de acuerdo al indicador <span class="math inline">\(cp\)</span>. Esta efectividad puede medirse a partir del valor de la <span class="math inline">\(K-fold Cross Validation\)</span>. Esto consiste en tomar <span class="math inline">\(K\)</span> divisiones y entrenar el modelo con todos menos el <span class="math inline">\(K\)</span>-ésimo grupo; en cambio, el grupo número <span class="math inline">\(K\)</span> se utiliza para evaluar el modelo. Luego se promedian los <span class="math inline">\(K\)</span> valores de <span class="math inline">\(MSE\)</span> evaluados para obtener un valor del proceso.</p>
 <p>Lo que haremos entonces será graficar el valor de <span class="math inline">\(K-fold CV\)</span> de evaluación para cada uno de los árboles generados por los valores de <span class="math inline">\(cp\)</span> y su número de nodos. ¿Qué ocurrirá si aumenta el valor de <span class="math inline">\(K\)</span>?</p>
-<pre class="r"><code>set.seed(12345)
-my_data_train = my_data %&gt;% sample_frac(0.70)
-my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)
-tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
+<pre class="r"><code>tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
            control = rpart.control(xval = 5,
                                    minbucket = 10,
                                    cp = 0.0001
                                    ))
 p &lt;- plotcp(tree)</code></pre>
 <p><img src="cart_v1_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<pre class="r"><code>my_data_train = my_data %&gt;% sample_frac(0.70)
-my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)
-tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
-           control = rpart.control(xval = 5,
-                                   minbucket = 10,
-                                   cp = 0.0001
-                                   ))
-#B &lt;- printcp(tree)
+<pre class="r"><code>#B &lt;- printcp(tree)
 A &lt;- as.data.frame(B)
 C &lt;- cbind(as.numeric(A[A$xerror == min(B[,4]), 1]), as.numeric(A[A$xerror == min(B[,4]), 2]))
 colnames(C) &lt;- c(&quot;CP&quot;, &quot;Núm de hojas&quot;)
@@ -582,9 +782,7 @@ C</code></pre>
 <div id="quedarse-con-el-árbol-podado" class="section level1">
 <h1><strong>4. Quedarse con el árbol podado</strong></h1>
 <p>Ahora que hemos seleccionado el número óptimo de hojas, lo que resta es armar el subárbol hasta ese valor de hojas, estimar las predicciones y calcular el valor de MSE. Esto se puede hacer mediante la función <span class="math inline">\(prune.rpart\)</span> en <em>R</em>.</p>
-<pre class="r"><code>my_data_train = my_data %&gt;% sample_frac(0.7)
-my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)
-tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
+<pre class="r"><code>tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
                control = rpart.control(minbucket = 10, 
                                        cp = 0.004))
 pruned &lt;- prune.rpart(tree, cp = 0.004)
@@ -604,7 +802,7 @@ MSEf &lt;- as.data.frame(mse(my_data_test$Y, prpruned))
 colnames(MSEf) &lt;- c(&quot;MSE&quot;)
 MSEf &lt;- sprintf(&quot;%5.4f&quot;, MSEf)
 MSEf</code></pre>
-<pre><code>## [1] &quot;0.2024&quot;</code></pre>
+<pre><code>## [1] &quot;0.2064&quot;</code></pre>
 <p><span class="math display">\[\\[1in]\]</span></p>
 <div id="preguntas" class="section level3">
 <h3>Preguntas</h3>

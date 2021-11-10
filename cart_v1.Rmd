@@ -21,25 +21,6 @@ output:
 }
 body {
 text-align: justify;
-<!--
-font-family: Helvetica;
-  font-size: 12pt;}
-h1{
-  font-size: 24pt;
-}
-h2{
-  font-size: 20pt;
-}
-h3{
-  font-size: 16pt;
-}
-h4{
-  font-size: 14pt;
-}
-
-table, th, td {
-    font-size: 12px;
-    -->
 }
 </style>
 
@@ -89,7 +70,8 @@ my_data <- read_delim("social_voting.csv", ",", escape_double = FALSE, trim_ws =
 # Escogemos una muestra aleatoria del total
 n_obs <- 40000 # Cambiar este numero si el pc es muy lento. 6000 es un buen numero.
 my_data <- my_data[sample(nrow(my_data), n_obs), ]
-my_data
+#my_data
+knitr::kable(my_data[1:5,1:13], format="html")
 my_data$sex=as.factor(my_data$sex)
 my_data$g2000=as.factor(my_data$g2000)
 my_data$g2002=as.factor(my_data$g2002)
@@ -118,7 +100,7 @@ column_spec(2, width = "50em")
 Para fines de modelar el comportamiento de votación, se divide la base de datos en un 70% para el ajuste de un árbol de decisión y un 30% para la predicción de un árbol de decisión. 
 
 
-```{r text1, echo=TRUE, exercise=FALSE}
+```{r text1, echo=TRUE}
 # División de los datos: entrenamiento con 70%
 my_data_train = my_data %>% sample_frac(0.70)
 
@@ -137,7 +119,7 @@ $$\\[1in]$$
 
 # **2. Estimación**
 
-La metodología de árboles de decisión está implementada en el paquete `rpart` del programa *R*. La función principal es *rpart( )* y habitualmente se emplea de la siguiente forma:
+La metodología de árboles de decisión está implementada en el paquete `rpart` del programa *R*. La función principal es `rpart( )` y habitualmente se emplea de la siguiente forma:
 
 ```{r text2, echo=TRUE, eval=FALSE}
 rpart(formula=, data=, method=, control=, ...)
@@ -169,8 +151,6 @@ En el árbol, en la parte superior de cada nodo, se presenta la respuesta media 
 
 ```{r, echo=TRUE,eval=TRUE}
 set.seed(12345)
-my_data_train = my_data %>% sample_frac(0.70)
-my_data_test = anti_join(my_data, my_data_train, by = 'id')
 tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
            control = rpart.control(minbucket = 10, 
                                    cp = 0.001))
@@ -182,12 +162,6 @@ MSE
 ```
 
 ```{r,echo=TRUE,eval=TRUE}
-my_data_train = my_data %>% sample_frac(0.70)
-my_data_test = anti_join(my_data, my_data_train, by = 'id')
-tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
-             control = rpart.control(minbucket = 10, 
-                                     cp = 0.001))
-
 rpart.plot(tree, main="Árbol de decisión: Social Pressure and Voter Turnout",box.palette="RdBu", shadow.col="gray", nn=TRUE, branch.lty = 3)
 ```
 
@@ -207,9 +181,6 @@ Lo que haremos entonces será graficar el valor de $K-fold CV$ de evaluación pa
 
 
 ```{r,eval=TRUE,echo=TRUE}
-set.seed(12345)
-my_data_train = my_data %>% sample_frac(0.70)
-my_data_test = anti_join(my_data, my_data_train, by = 'id')
 tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
            control = rpart.control(xval = 5,
                                    minbucket = 10,
@@ -219,21 +190,12 @@ p <- plotcp(tree)
 ```
 
 ```{r,echo=TRUE}
-my_data_train = my_data %>% sample_frac(0.70)
-my_data_test = anti_join(my_data, my_data_train, by = 'id')
-tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
-           control = rpart.control(xval = 5,
-                                   minbucket = 10,
-                                   cp = 0.0001
-                                   ))
 #B <- printcp(tree)
 A <- as.data.frame(B)
 C <- cbind(as.numeric(A[A$xerror == min(B[,4]), 1]), as.numeric(A[A$xerror == min(B[,4]), 2]))
 colnames(C) <- c("CP", "Núm de hojas")
 C[1,1] <- sprintf("%5.4f", C[1,1])
 C
-
-
 ```
 
 
@@ -253,8 +215,6 @@ Ahora que hemos seleccionado el número óptimo de hojas, lo que resta es armar 
 
 
 ````{r,echo=TRUE}
-my_data_train = my_data %>% sample_frac(0.7)
-my_data_test = anti_join(my_data, my_data_train, by = 'id')
 tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
                control = rpart.control(minbucket = 10, 
                                        cp = 0.004))
