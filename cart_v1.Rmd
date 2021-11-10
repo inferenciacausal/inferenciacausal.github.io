@@ -71,7 +71,7 @@ my_data <- read_delim("social_voting.csv", ",", escape_double = FALSE, trim_ws =
 n_obs <- 40000 # Cambiar este numero si el pc es muy lento. 6000 es un buen numero.
 my_data <- my_data[sample(nrow(my_data), n_obs), ]
 #my_data
-knitr::kable(my_data[1:5,1:13], format="html")
+print.data.frame(my_data)
 my_data$sex=as.factor(my_data$sex)
 my_data$g2000=as.factor(my_data$g2000)
 my_data$g2002=as.factor(my_data$g2002)
