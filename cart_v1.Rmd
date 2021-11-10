@@ -1,6 +1,6 @@
 ---
 title: "Decision Trees - CART"
-author: "by Angelo Muñoz y Andrés Fernández Vergara"
+author: "Angelo Muñoz y Andrés Fernández Vergara"
 output:
   html_document:
     toc: true
@@ -21,6 +21,7 @@ output:
 }
 body {
 text-align: justify;
+<!--
 font-family: Helvetica;
   font-size: 12pt;}
 h1{
@@ -38,6 +39,7 @@ h4{
 
 table, th, td {
     font-size: 12px;
+    -->
 }
 </style>
 
@@ -68,13 +70,12 @@ select <- dplyr::select
 set.seed(12345)
 ```
 
+
+En este Data Tutorial estudiaremos el uso de árboles de decisión para problemas de regresión y clasificación. Sigue las instrucciones entregadas y replica el código que estimes relevante para seguir la actividad en tu propio computador. Al terminar la actividad, debes visitar el [enlace de Lecturas](https://uchiledii.qualtrics.com/jfe/form/SV_dd6eXhXQSyYi2Ue).
+
+
 # **1. Árboles de decisión**
 
-## Objetivo
-
-En este módulo estudiaremos el uso de árboles de decisión para problemas de regresión y clasificación como modelo predictivo de Machine Learning.  
-
-## Data
 
 Los datos provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) ([Ver el artículo](https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf)). El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento ($W$), respuesta ($Y$) y características observables de los votantes ($X$).
 
@@ -88,6 +89,7 @@ my_data <- read_delim("social_voting.csv", ",", escape_double = FALSE, trim_ws =
 # Escogemos una muestra aleatoria del total
 n_obs <- 40000 # Cambiar este numero si el pc es muy lento. 6000 es un buen numero.
 my_data <- my_data[sample(nrow(my_data), n_obs), ]
+my_data
 my_data$sex=as.factor(my_data$sex)
 my_data$g2000=as.factor(my_data$g2000)
 my_data$g2002=as.factor(my_data$g2002)
@@ -95,7 +97,6 @@ my_data$p2000=as.factor(my_data$p2000)
 my_data$p2002=as.factor(my_data$p2002)
 my_data$p2004=as.factor(my_data$p2004)
 set.seed(12345)
-my_data
 
 ```
 
@@ -113,9 +114,8 @@ column_spec(1, bold = T, color = "black") %>%
 column_spec(2, width = "50em") 
 ```
 
-## División de la información
 
-Para fines de modelar el comportamiento de votación, dividimos la base de datos en un 70% para el ajuste de un árbol de decisión y un 30% para la predicción de un árbol de decisión. 
+Para fines de modelar el comportamiento de votación, se divide la base de datos en un 70% para el ajuste de un árbol de decisión y un 30% para la predicción de un árbol de decisión. 
 
 
 ```{r text1, echo=TRUE, exercise=FALSE}
@@ -137,7 +137,7 @@ $$\\[1in]$$
 
 # **2. Estimación**
 
-La metodología de árboles de decisión está implementada en el paquete *rpart* del prgrama *R*. La función principal es *rpart()* y habitualmente se emplea de la siguiente forma:
+La metodología de árboles de decisión está implementada en el paquete `rpart` del programa *R*. La función principal es *rpart( )* y habitualmente se emplea de la siguiente forma:
 
 ```{r text2, echo=TRUE, eval=FALSE}
 rpart(formula=, data=, method=, control=, ...)
@@ -145,13 +145,13 @@ rpart(formula=, data=, method=, control=, ...)
 
 Donde:
 
- - *formula*: recibe como input una fórmula en *R*, del estilo "Y ~ X1 + X2", y permite especificar el modelo. En *R* se puede utilizar la fórmula " Y ~ ." donde el punto representa todas las covariables de la base de datos.
+ - *formula*: recibe como input una fórmula en *R*, del estilo `Y ~ X1 + X2`, y permite especificar el modelo. En *R* se puede utilizar la fórmula `Y ~ .` donde el punto representa todas las covariables de la base de datos.
 
-- *data*: recibe como input la base (data frame) donde se aplicará el modelo. Debe tenerse en cuenta que para entrenar, la muestra debe ser la de entrenamiento, y para predecir, debe usarse la muestra de evaluación.
+- *data*: recibe como input el conjunto de datos donde se aplicará el modelo. Debe tenerse en cuenta que para entrenar, la muestra debe ser la de entrenamiento, y para predecir, debe usarse la muestra de evaluación.
 
-- *method*: método empleado para realizar las particiones del árbol, puede ser "anova" (regresión) o "class" (clasificación), u otras. El método a escoger dependerá de la naturaleza de las variables del modelo.
+- *method*: método empleado para realizar las particiones del árbol, puede ser "anova" (regresión), "class" (clasificación) u otras. El método a escoger dependerá de la naturaleza de las variables del modelo.
 
-- *control*: lista de opciones que controlan el algoritmo de partición como método de detención (stopping). Esta función permite poner un límite de observaciones en cada una de las hojas finales (minbucket) o en los nodos intermedios (minsplit). Al mismo tiempo, es esta función la que permite incorporar funciones de *costo de complejidad de poda*. Para usarlo, se puede imputar en la llamada de función principal o utilizando la función *rpart.control()*. Por ejemplo:
+- *control*: lista de opciones que controlan el algoritmo de partición como método de detención (stopping). Esta función permite poner un límite de observaciones en cada una de las hojas finales (minbucket) o en los nodos intermedios (minsplit). Al mismo tiempo, es esta función la que permite incorporar funciones de *costo de complejidad de poda*. Para usarlo, se puede imputar en la llamada de función principal o utilizando la función *rpart.control( )*. Por ejemplo:
 
 ```{r text3, echo=TRUE, eval=FALSE}
 rpart.control(cp = , minsplit = , minbucket = , ...)
@@ -162,12 +162,12 @@ rpart.control(cp = , minsplit = , minbucket = , ...)
 
 2. $minsplit$ y $minbucket$ son los parámetros para fijar números mínimos de observaciones en nodos intermedios y terminales, respectivamente.
 
-A continuación, usted podrá implementar un árbol de decisión, considerando todas las covariables para explicar $Y$, variando el parámetros $cp$. El parámetro $minbucket$ se fijará en 10. Observe lo que ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización. 
+A continuación, usted podrá implementar un árbol de decisión, considerando todas las covariables para explicar $Y$. Comience fijando el parámetro $minbucket$ en 10 y $cp$ en $0.001$. ¿Qué ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización.?
 
-En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de $Y$ (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Bajo el gráfico se presenta el MSE del árbol completo. Recordamos que este indicador tiene la forma $MSE = \sum^N_i (y_i - \hat(y)_i)^2$. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato (en la muestra de evaluación o de entrenamiento).
+En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de $Y$ (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Sobre el gráfico se presenta el MSE del árbol completo. Recuerda que este indicador tiene la forma $MSE = \sum^N_i (y_i - \hat(y)_i)^2$. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato, en la muestra de evaluación o de entrenamiento.
 
 
-```{r}
+```{r, echo=TRUE,eval=TRUE}
 set.seed(12345)
 my_data_train = my_data %>% sample_frac(0.70)
 my_data_test = anti_join(my_data, my_data_train, by = 'id')
@@ -187,7 +187,7 @@ tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_da
              control = rpart.control(minbucket = 10, 
                                      cp = 0.001))
 
-rpart.plot(tree, main="Árbol de decisión: *Social Pressure and Voter Turnout*",box.palette="RdBu", shadow.col="gray", nn=TRUE, branch.lty = 3)
+rpart.plot(tree, main="Árbol de decisión: Social Pressure and Voter Turnout",box.palette="RdBu", shadow.col="gray", nn=TRUE, branch.lty = 3)
 ```
 
 $$\\[1in]$$
