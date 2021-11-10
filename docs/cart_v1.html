@@ -562,8 +562,6 @@ tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my
                                    ))
 p &lt;- plotcp(tree)</code></pre>
 <p><img src="cart_v1_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<pre class="r"><code>p</code></pre>
-<pre><code>## NULL</code></pre>
 <pre class="r"><code>my_data_train = my_data %&gt;% sample_frac(0.70)
 my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)
 tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
@@ -579,7 +577,7 @@ C[1,1] &lt;- sprintf(&quot;%5.4f&quot;, C[1,1])
 C</code></pre>
 <pre><code>##      CP       Núm de hojas
 ## [1,] &quot;0.0003&quot; &quot;32&quot;</code></pre>
-<p>El gráfico presenta el valor de la validación cruzada <em>K-fold Cross-Validation</em>, que puede leerse como una aproximación del MSE de evaluación. Por lo tanto, debe utilizarse el número de hojas que minimice el valor de la evaluación. <span class="math display">\[\\[1in]\]</span></p>
+<p>El gráfico presenta el valor de la validación cruzada <span class="math inline">\(K-fold Cross-Validation\)</span>, que puede leerse como una aproximación del MSE de evaluación. Por lo tanto, debe utilizarse el número de hojas que minimice el valor de la evaluación. <span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="quedarse-con-el-árbol-podado" class="section level1">
 <h1><strong>4. Quedarse con el árbol podado</strong></h1>
@@ -607,6 +605,7 @@ colnames(MSEf) &lt;- c(&quot;MSE&quot;)
 MSEf &lt;- sprintf(&quot;%5.4f&quot;, MSEf)
 MSEf</code></pre>
 <pre><code>## [1] &quot;0.2024&quot;</code></pre>
+<p><span class="math display">\[\\[1in]\]</span></p>
 <div id="preguntas" class="section level3">
 <h3>Preguntas</h3>
 <ol style="list-style-type: decimal">

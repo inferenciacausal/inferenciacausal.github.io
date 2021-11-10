@@ -216,8 +216,6 @@ tree <- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_da
                                    cp = 0.0001
                                    ))
 p <- plotcp(tree)
-p
-
 ```
 
 ```{r,echo=TRUE}
@@ -239,7 +237,7 @@ C
 ```
 
 
-El gráfico presenta el valor de la validación cruzada *K-fold Cross-Validation*, que puede leerse como una aproximación del MSE de evaluación. Por lo tanto, debe utilizarse el número de hojas que minimice el valor de la evaluación.
+El gráfico presenta el valor de la validación cruzada $K-fold Cross-Validation$, que puede leerse como una aproximación del MSE de evaluación. Por lo tanto, debe utilizarse el número de hojas que minimice el valor de la evaluación.
 $$\\[1in]$$
 
 
@@ -278,6 +276,12 @@ colnames(MSEf) <- c("MSE")
 MSEf <- sprintf("%5.4f", MSEf)
 MSEf
 ````
+
+
+
+$$\\[1in]$$
+
+
 
 ### Preguntas
 
