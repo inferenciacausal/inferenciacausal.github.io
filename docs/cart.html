@@ -562,7 +562,10 @@ colnames(MSEf) &lt;- c(&quot;MSE&quot;)
 MSEf &lt;- sprintf(&quot;%5.4f&quot;, MSEf)
 MSEf</code></pre>
 <pre><code>## [1] &quot;0.2064&quot;</code></pre>
-<p><span class="math display">\[\\[1in]\]</span> # <strong>5. Concluir</strong></p>
+<p><span class="math display">\[\\[1in]\]</span></p>
+</div>
+<div id="concluir" class="section level1">
+<h1><strong>5. Concluir</strong></h1>
 <p>Tenemos un árbol óptimo de decisión, que nos permite conformar subgrupos de acuerdo a las variables del modelo. ¿Cómo podemos utilizar esta información? Los árboles de decisión nos permiten entender qué variables son relevantes para caracterizar la muestra. Por ejemplo, variables que separan nodos iniciales significa que describen mejor el comportamiento de voto y por lo tanto es importante incorporarlas posteriormente en un modelo de regresión. O bien, variables que no aparecen en el árbol de decisión óptimo no aportan gran información en la caracterización de la muestra.</p>
 <p>Cada árbol permite agrupar individuos que tuvieron tasas más altas de respuesta que otros, y cómo esto se relaciona con variables de caracterización. Cuando queramos estudiar el efecto de tratamiento, estas variables serán útiles para entender heterogeneidades en la muestra.</p>
 <div id="preguntas" class="section level3">
