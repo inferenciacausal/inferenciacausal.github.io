@@ -354,12 +354,12 @@ body {
 text-align: justify;
 }
 </style>
-<p>En este Data Tutorial estudiaremos el uso de árboles de decisión para problemas de regresión y clasificación. Sigue las instrucciones entregadas y replica el código que estimes relevante para seguir la actividad en tu propio computador. Al terminar la actividad, debes visitar el <a href="https://uchiledii.qualtrics.com/jfe/form/SV_dd6eXhXQSyYi2Ue">enlace de Lecturas</a>.</p>
+<p>En este Data Tutorial estudiaremos el uso de árboles de decisión para problemas de regresión y clasificación (en inglés CART, por classification and regression trees). Sigue las instrucciones entregadas y replica el código en tu computador para seguir la actividad. Ten presente que deberás hacer algunas modificaciones. Al terminar la actividad, recuerda visitar el <a href="https://uchiledii.qualtrics.com/jfe/form/SV_dd6eXhXQSyYi2Ue">enlace de Lecturas</a> para entregar tu comentario y tu retroalimentación.</p>
 <div id="árboles-de-decisión" class="section level1">
 <h1><strong>1. Árboles de decisión</strong></h1>
-<p>Los datos provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) (<a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf">Ver el artículo</a>). El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento (<span class="math inline">\(W\)</span>), respuesta (<span class="math inline">\(Y\)</span>) y características observables de los votantes (<span class="math inline">\(X\)</span>).</p>
-<p>En la base, mostrada a continuación, <span class="math inline">\(Y\)</span> es la variable de resultado (votar o no votar) en la elección general del año 2004, <span class="math inline">\(W\)</span> es la variable de tratamiento (carta recibida) y el resto de las variables son covariables <span class="math inline">\(X\)</span>, principalmente sobre el comportamiento de voto en elecciones anteriores.</p>
-<p>A continuación vemos una vista previa de la base de datos:</p>
+<p>Los datos que se utilizarán en este Data Tutorial provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) (<a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf">Ver el artículo</a>). El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a ir a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento (<span class="math inline">\(W\)</span>), respuesta (<span class="math inline">\(Y\)</span>) y características observables de los votantes (<span class="math inline">\(X\)</span>).</p>
+<p>En la base, mostrada a continuación, <span class="math inline">\(Y\)</span> es la variable de resultado (votar o no votar) en la elección general del año 2004, <span class="math inline">\(W\)</span> es la variable de tratamiento (carta recibida o no) y el resto de las variables son covariables <span class="math inline">\(X\)</span>, principalmente sobre el comportamiento de voto en elecciones anteriores.</p>
+<p>A continuación vemos una vista previa de la base de datos (chequea en tu computador las similitudes):</p>
 <pre><code>## # A tibble: 6 × 16
 ##     ...1     X1     id cluster  hh_id hh_size     Y     W   sex   yob g2000
 ##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
@@ -476,7 +476,7 @@ Porcentaje de votación en su estado para la elección primaria 2004
 </tr>
 </tbody>
 </table>
-<p>Para fines de modelar el comportamiento de votación, se divide la base de datos en un 70% para el ajuste de un árbol de decisión y un 30% para la predicción de un árbol de decisión.</p>
+<p>Como es común para efectos del uso de árboles de decisión, se dejará un subconjunto de la muestra para entrenamiento y otro para la evaluación. En este caso, se divide la base de datos en un 70% para el ajuste de un árbol de decisión (entrenamiento) y un 30% para la predicción de un árbol de decisión (evaluación). Puedes probar otros porcentajes en tu computador y ver cómo varían los resultados.</p>
 <pre class="r"><code># División de los datos: entrenamiento con 70%
 my_data_train = my_data %&gt;% sample_frac(0.70)
 
@@ -501,7 +501,7 @@ my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)</code></pre>
 <li><p><span class="math inline">\(cp\)</span> es el parámetro de costo de complejidad (<span class="math inline">\(\alpha\)</span>) que permite buscar el subárbol óptimo según el número de hojas. El parámetro de penalización se mueve en un rango entre 0 (un árbol con profundidad máxima) y 1 (un árbol sólo con raíz).</p></li>
 <li><p><span class="math inline">\(minsplit\)</span> y <span class="math inline">\(minbucket\)</span> son los parámetros para fijar números mínimos de observaciones en nodos intermedios y terminales, respectivamente.</p></li>
 </ol>
-<p>A continuación, usted podrá implementar un árbol de decisión, considerando todas las covariables para explicar <span class="math inline">\(Y\)</span>. Comience fijando el parámetro <span class="math inline">\(minbucket\)</span> en 10 y <span class="math inline">\(cp\)</span> en <span class="math inline">\(0.001\)</span>. ¿Qué ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización.?</p>
+<p>A continuación, podrás implementar un árbol de decisión, considerando todas las covariables para explicar <span class="math inline">\(Y\)</span>. Comienza fijando el parámetro <span class="math inline">\(minbucket\)</span> en 10 y <span class="math inline">\(cp\)</span> en <span class="math inline">\(0.001\)</span>. ¿Qué ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización.?</p>
 <p>En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de <span class="math inline">\(Y\)</span> (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Sobre el gráfico se presenta el <span class="math inline">\(MSE\)</span> del árbol completo. Recuerda que este indicador tiene la forma <span class="math inline">\(MSE = \sum^N_i (y_i - \hat(y)_i)^2\)</span>. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato, en la muestra de evaluación o de entrenamiento.</p>
 <pre class="r"><code>set.seed(12345)
 tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
@@ -514,7 +514,7 @@ MSE &lt;- sprintf(&quot;%5.4f&quot;, MSE)
 MSE</code></pre>
 <pre><code>## [1] &quot;0.2015&quot;</code></pre>
 <pre class="r"><code>rpart.plot(tree, main=&quot;Árbol de decisión: Social Pressure and Voter Turnout&quot;,box.palette=&quot;RdBu&quot;, shadow.col=&quot;gray&quot;, nn=TRUE, branch.lty = 3)</code></pre>
-<p><img src="cart_v1_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="cart_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="buscando-el-número-óptimo-de-hojas" class="section level1">
@@ -527,7 +527,7 @@ MSE</code></pre>
                                    cp = 0.0001
                                    ))
 p &lt;- plotcp(tree)</code></pre>
-<p><img src="cart_v1_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="cart_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <pre class="r"><code>#B &lt;- printcp(tree)
 A &lt;- as.data.frame(B)
 C &lt;- cbind(as.numeric(A[A$xerror == min(B[,4]), 1]), as.numeric(A[A$xerror == min(B[,4]), 2]))
@@ -547,7 +547,7 @@ C</code></pre>
 pruned &lt;- prune.rpart(tree, cp = 0.004)
 prpruned &lt;- rpart.predict(pruned, data = my_data_test)
 rpart.plot(pruned, main=&quot;Árbol de decisión PODADO: *Social Pressure and Voter Turnout*&quot;,box.palette=&quot;RdBu&quot;, shadow.col=&quot;gray&quot;, nn=TRUE, branch.lty = 3)</code></pre>
-<p><img src="cart_v1_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="cart_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <pre class="r"><code>my_data_train = my_data %&gt;% sample_frac(0.7)
 my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)
 tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
@@ -555,16 +555,19 @@ tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my
                                        cp = 0.004))
 pruned &lt;- prune.rpart(tree, cp = 0.004)
 rpart.plot(pruned, main=&quot;Árbol de decisión PODADO: *Social Pressure and Voter Turnout*&quot;,box.palette=&quot;RdBu&quot;, shadow.col=&quot;gray&quot;, nn=TRUE, branch.lty = 3)</code></pre>
-<p><img src="cart_v1_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<p><img src="cart_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
 <pre class="r"><code>prpruned &lt;- predict(pruned, type = &quot;matrix&quot;, newdata = my_data_test)
 MSEf &lt;- as.data.frame(mse(my_data_test$Y, prpruned))
 colnames(MSEf) &lt;- c(&quot;MSE&quot;)
 MSEf &lt;- sprintf(&quot;%5.4f&quot;, MSEf)
 MSEf</code></pre>
 <pre><code>## [1] &quot;0.2064&quot;</code></pre>
-<p><span class="math display">\[\\[1in]\]</span></p>
+<p><span class="math display">\[\\[1in]\]</span> # <strong>5. Concluir</strong></p>
+<p>Tenemos un árbol óptimo de decisión, que nos permite conformar subgrupos de acuerdo a las variables del modelo. ¿Cómo podemos utilizar esta información? Los árboles de decisión nos permiten entender qué variables son relevantes para caracterizar la muestra. Por ejemplo, variables que separan nodos iniciales significa que describen mejor el comportamiento de voto y por lo tanto es importante incorporarlas posteriormente en un modelo de regresión. O bien, variables que no aparecen en el árbol de decisión óptimo no aportan gran información en la caracterización de la muestra.</p>
+<p>Cada árbol permite agrupar individuos que tuvieron tasas más altas de respuesta que otros, y cómo esto se relaciona con variables de caracterización. Cuando queramos estudiar el efecto de tratamiento, estas variables serán útiles para entender heterogeneidades en la muestra.</p>
 <div id="preguntas" class="section level3">
 <h3>Preguntas</h3>
+<p>Ahora, sobre el proceso de construcción del árbol, responde las siguientes preguntas:</p>
 <ol style="list-style-type: decimal">
 <li><p>¿Mejoró el MSE entre los primeros árboles estimados y los podados?</p></li>
 <li><p>¿Disminuye la longitud del árbol al aumentar la penalización de complejidad?</p></li>
