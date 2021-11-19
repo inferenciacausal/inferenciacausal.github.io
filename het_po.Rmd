@@ -1,0 +1,336 @@
+---
+title: "HTE"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 1
+    #code_folding: hide
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+body {
+  text-align: justify;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+#library(learnr)
+library(AER)
+library(ERSA)
+library(readr)
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+library(kableExtra)
+library(readr)
+library(knitr)
+library(randomForest)
+require(caTools)
+library(stargazer)
+library(shiny)
+library(shinycustomloader)
+library(grf)
+library(caret)
+library(estimatr)
+library(rsconnect)
+library(doBy)
+library(sass)
+
+knitr::opts_chunk$set(echo = FALSE)
+
+#Instalamos paquetes
+select <- dplyr::select
+
+# Set seed for reproducibility
+set.seed(12345)
+```
+
+# **1. Introducción**
+
+## Objetivo
+
+El objetivo de este módulo es proponer un caso que puedas analizar en tu propio computador. 
+
+## Caso: percepciones sobre el gasto público y el Estado de Bienestar
+
+Los datos provienen de la base de datos "welfare" del artículo de Green & Kern (2012). La Encuesta Social General (GSS, por sus siglas en inglés) es una encuesta comúnmente utilizada en Estados Unidos, la cual presenta efectos experimentales altamente replicados y una muestra suficientemente grande para ser analizada adecuadamente. 
+
+La base de datos evalúa las percepciones que tienen los estadounidenses sobre programas de gobierno que se alineen al denominado "Estado de Bienestar" ("welfare"), puesto que existe un prejuicio generalizado hacia programas y beneficios sociales. Un experimento conocido sobre esta encuesta asigna aleatoriamente a los respondentes a una evaluación de si el gasto público es "demasiado alto", "adecuado" o "demasiado bajo", en determinados programas. La condición experimental varía una única palabra en el fraseo de uno de los programas sociales: el tratamiento consiste en utilizar la palabra "bienestar" en vez de la frase "asistencia a los pobres" (welfare/assistance to the poor).
+
+Los resultados de numerosos análisis de esta encuesta, desde 1986 hasta 2010, muestran que al ser expuestos al fraseo del programa como "bienestar social" (welfare), los encuestados muestran una probabilidad de 30% y 50% más de responder que el gasto es "demasiado alto" (too much). Algunas de las razones expuestas para explicar estas diferencias se basan en estereotipos generalizados sobre los beneficiarios de los programas de bienestar y de la gente más pobre, particularmente en estereotipos raciales; también se esgrimen argumentos sobre orientaciones político-ideológicas sobre individualismo y conservadurismo.
+
+El estudio que se busca replicar en este tutorial estudia la heterogeneidad de dicho tratamiento. 
+
+## Datos
+
+La base de datos puedes descargarla [aquí](https://github.com/AndyFerver/IN4402/blob/2a00eecd73f963c62dd18c9e726f09b61df36988/welfarelabel.rar), y si necesitas descargar este tutorial en formato Rmd para verlo en tu computador de manera offline, puedes hacerlo desde [aquí](https://github.com/AndyFerver/IN4402/blob/1b224508b213f0699491a9d3683f092b593b21b9/het_po.rar).
+
+
+###### Green, D. P., & Kern, H. L. (2012). Modeling heterogeneous treatment effects in survey experiments with Bayesian additive regression trees. Public opinion quarterly, 76(3), 491-511.
+
+###### Este tutorial es una adaptación del tutorial "Estimation of Heterogeneous Treatment Effects" realizado por Athey, Wager, Hadad, Klosin, Muhelbach, Nie y Schaelling en mayo de 2020 para su curso de "Machine Learning and Causal Inference". 
+
+# **2. Inicio**
+
+## Cargar las librerías en R
+
+Comience cargando las librerías que usaremos en este tutorial. A ellas debe agregarles las tradicionales usadas para cargar la base de datos y algunas de manejo básico de bases.
+
+```{r paso_-1, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+library(fBasics)
+library(grf)
+library(ggplot2)
+library(estimatr)
+library(dplyr)
+```
+
+## Preparar los datos
+
+Limpiaremos de datos faltantes, y botaremos aquellas columnas que no sean variables de resultado, de tratamiento o covariables.
+
+```{r paso_1,  echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+df <- read_csv("welfarelabel.csv")
+df <- na.omit(df)
+df <- df %>% select(-c("id", "_merge"))
+```
+
+Puede ser una buena práctica cambiar el nombre de las variables, para utilidad posterior. Como utilizaremos funciones recientes de Causal Trees y Causal Random Forests, propuestas por Athey y otros, estas todavía no aceptan datos categorizados como "factor", por lo que es recomebdable transformarlos a "numeric". Para esto último utilizaremos las funciones *lapply()* y *as.numeric()*.
+
+```{r paso_2, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+df <- df %>% rename(Y=y,W=w)
+df <- data.frame(lapply(df, function(x) as.numeric(as.character(x))))
+```
+
+# **3. Descriptivos**
+
+Comenzaremos el análisis echando una mirada al contenido de la base de datos. Para ello, veremos los estadísticos descriptivos de las variables. Para eso, puede utilizar las funciones de la librería **fBasics**, la cual debe estar instalada para poder usarse.
+
+```{r paso_3, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+# Hacemos una matriz con los estadísticos
+summ_stats <- fBasics::basicStats(df)
+summ_stats <- as.data.frame(t(summ_stats))
+
+# Le ponemos títulos a la matriz para facilitar la lectura
+summ_stats <- summ_stats[c("Mean", "Stdev", "Minimum", "1. Quartile", "Median",  "3. Quartile", "Maximum")] %>% 
+  rename("Lower quartile" = '1. Quartile', "Upper quartile"= "3. Quartile")
+
+summ_stats
+```
+
+
+Se dejará un 20% de la muestra para validación, y se utilizará el 80% de los datos para entrenar los árboles.
+
+```{r paso_4, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+train_fraction <- 0.80
+n <- dim(df)[1]
+train_idx <- sample.int(n, replace=F, size=floor(n*train_fraction))
+df_train <- df[train_idx,]
+df_test <- df[-train_idx,]
+```
+
+
+
+¿Cuál es la proporción de individuos tratados en la muestra? (50%)
+
+
+
+
+# **4. Estimando Heterogeneidad**
+
+
+Para estimar el Random Forest utilizamos la función *causal_forest* del paquete *grf*. Debemos indicar cuáles son las covariables, la variable de resultado y la variable de tratamiento. Para esto primero definimos tales variables.
+
+```{r paso_5}
+#, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+cf <- causal_forest(
+  X = as.data.frame(df_train %>% select(-c("Y", "W"))),
+  Y = df_train$Y,
+  W = df_train$W,
+  num.trees = 1000
+)
+```
+
+> De acuerdo a Athey, un buen número de árboles a utilizar es el número de individuos en la muestra. ¡Prueba en tu computador cambiando el número de árboles a estimar!
+
+## Examinando la región de soporte común
+Un supuesto importante de la estimación en inferencia causal es que existe una región de soporte común. Esto es, que hay observaciones tratadas y no tratadas en la misma región. Para eso, estudiaremos el Propensity Score estimado por la función.
+
+La predicción de Propensity Score queda guardado en la variable *W.hat*. En cambio, el valor real de los datos queda guardado en la variable *W.orig*. Utilizaremos el creador de gráficos *ggplot()* de la librería *ggplot2*. Se construyen gráficos tipo histograma y tipo densidad de kernel.
+
+
+```{r paso_6, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE, fig.show = 'hide'}
+ggplot(data.frame(W.hat = cf$W.hat, W = factor(cf$W.orig))) +
+ geom_histogram(aes(x = W.hat, y = stat(density), fill = W), alpha=0.3, position = "identity") +
+ geom_density(aes(x = W.hat, color = W)) +
+ xlim(0,1) +
+ labs(title = "Causal forest propensity scores",
+      caption = "The propensity scores are learned via GRF's regression forest")
+```
+
+
+
+¿Existe región de soporte? (Sí)
+
+
+
+
+## Estudiando la heterogeneidad
+Utilizaremos la misma muestra de entrenamiento para estudiar la heterogeneidad de los efectos, por ello, utilizaremos errores "out of the bag" (OOB) para validar los resultados. Utilizaremos la función *predict()*. Es también importante estimar los errores estándar de las predicciones, para examinar la significancia de ellas. Hay que recordar que las predicciones del CATE esperado se conocen como $\hat(\tau) $, es decir, tau "gorro", o tau "hat" en inglés.
+
+```{r paso_7, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+oob_pred <- predict(cf, estimate.variance=TRUE)
+oob_tauhat_cf <- oob_pred$predictions
+oob_tauhat_cf_se <- sqrt(oob_pred$variance.estimates)
+```
+
+>Para validar resultados utilizando el 20% de la muestra que quedó fuera, sólo se debe utilizar el parámetro `newdata = ` en la función de predicción e incorporar allí la muestra de validación.
+
+Se debe evaluar entonces si es que existe heterogeneidad de los efectos. Para ello graficamos un histograma de las estimaciones del CATE esperado (o tau hat).
+
+```{r paso_8, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE,  fig.show = 'hide'}
+hist(oob_tauhat_cf, main="Causal forests: out-of-bag CATE")
+```
+
+
+¿Existe heterogeneidad? ¿Se concentra en efectos positivos, negativos o ambos?
+
+
+
+
+
+## Importancia de Variables
+La función utilizada permite estudiar cuáles fueron aquellas variables que más afectaron la construcción de los árboles. Al promediar cuánto aporta cada variable en disminuir la suma de errores cuadrados o la impureza de las hojas, entonces se puede "rankear" la importancia de las variables. 
+
+```{r paso_9, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+#Tabla
+var_imp <- c(variable_importance(cf))
+names(var_imp) <- colnames(as.data.frame(df_train %>% select(-c("Y", "W"))))
+sorted_var_imp <- sort(var_imp, decreasing=TRUE)
+head(sorted_var_imp, 15)
+
+```
+
+> Es muy importante destacar que no sólo por estar abajo en el ranking de importancia quiere decir que una variable NO es importante para la heterogeneidad del efecto. Si dos variables tienen efectos importantes para la heterogeneidad, y tienen alta correlación entre ellas, puede ocurrir que el árbol utilice sólo una de ellas para la partición y no la otra, dejando a la primera alta en el ranking y a la segunda no.
+
+# **5. Heterogeneidad en subgrupos**
+
+Para esto, generaremos *cuartiles* del efecto de tratamiento. Ordenando la muestra desde la observación con menor CATE esperado hasta la observación con mayor CATE esperado, dividiremos la muestra en cuatro, generándose así cuatro *cuartiles* de observaciones, y que, por lo tanto, son grupos que permiten una comparación con un adecuado poder estadístico. Para la generación de cuartiles, y la incorporación de una columna a nuestra base de datos de entrenamiento utilizamos la función *ntile()*. En este caso dividiremos la muestra en cuatro (cuartiles). Si dividiésemos la muestra en 5, serían quintiles.
+
+```{r paso_10, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+num_tiles <- 4 
+df_train$cate <- oob_tauhat_cf
+df_train$ntile <- factor(ntile(oob_tauhat_cf, n=num_tiles))
+```
+
+> Prueba cambiando el número de grupos de 4 a 5, y analiza cómo se modifican los resultados.
+
+Para estimar el efecto de tratamiento (ATE) en cada subgrupo se pueden utilizar dos métodos. El primero compara "en bruto" las diferencias de resultado entre tratados y controles. El segundo método construye un estimador robusto. En escenarios experimentales ambos métodos debiesen llevar a resultados similares, pero en datos observacionales el segundo método asegura estimaciones insesgadas y eficientes. 
+
+## 5.1. Sample ATE
+
+El primer método compara los efectos de tratamiento de tratados y de no tratados en cada uno de los cuartiles conformados. Para esto basta con realizar una regresión lineal (robusta), que nos permite a su vez estimar errores estandar. Esta regresión incluye términos de interacción con los indicadores de cada cuartil. La regresión con errores estándares robustos proviene de la función *lm_robust*, de la librería *estimater*.
+
+```{r paso_11, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+#Para hacer la estimación
+ols_sample_ate <- lm_robust(Y ~ ntile + ntile:W, data = df_train)
+
+#Para que quede una tabla resumen con los resultados
+estimated_sample_ate <- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_tiles), c("Estimate", "Std. Error")]
+
+```
+
+## 5.2. AIPW ATE
+
+El segundo método es el Augmented Inverse-Propensity Weighted ATE, o en español el ATE aumentado por ponderación de propensión inversa. Esto quiere decir que se ponderan las observaciones dentro de los cuartiles de acuerdo a (el inverso de) la probabilidad de haber sido tratados (Propensity Score). Esto debe hacerse por cada subgrupo.
+
+```{r paso_12, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+ateq1 <-average_treatment_effect(cf,subset=df_train$ntile==1,method="AIPW")
+ateq2 <-average_treatment_effect(cf,subset=df_train$ntile==2,method="AIPW")
+ateq3 <-average_treatment_effect(cf,subset=df_train$ntile==3,method="AIPW")
+ateq4 <-average_treatment_effect(cf,subset=df_train$ntile==4,method="AIPW")
+estimated_aipw_ate <- data.frame(rbind(ateq1, ateq2, ateq3, ateq4))
+```
+
+Veamos cómo se comparan los resultados de ambos métodos en este escenario (experimental):
+
+```{r paso_13, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE,  fig.show = 'hide'}
+#Generando un data frame llamado G con columnas que indican el método y el cuartil de cada resultado:
+  A <- as.data.frame(estimated_sample_ate)
+  B <- as.data.frame(estimated_aipw_ate)
+  colnames(A) <- c("Estimate", "Std. Error")
+  colnames(B) <- c("Estimate", "Std. Error")
+  G <- rbind(A,B)
+  G$method <- c(1:8)
+  G[1:4,]$method <- "Sample ATE"
+  G[5:8,]$method <- "AIPW ATE"
+  G$Cuartil <- c(1:8)
+  G[c(1,5),]$Cuartil <- 1
+  G[c(2,6),]$Cuartil <- 2
+  G[c(3,7),]$Cuartil <- 3
+  G[c(4,8),]$Cuartil <- 4
+    
+ggplot(G, aes(x=Cuartil, y=Estimate, colour=method)) +
+      geom_point(position=position_dodge(.9)) +
+      geom_errorbar(aes(ymin=Estimate-(1.647 * `Std. Error`),
+                        ymax=Estimate+(1.647 * `Std. Error`), colour=method), 
+                        width=.2,position=position_dodge(.9)) +
+       theme(legend.title = element_blank(),panel.grid.major = element_blank()) +
+       labs(x="Conditional Average Treatment Effect", #xlab() agrega etiqueta del eje X
+       y="Frecuencia", #ylab() agrega etiqueta del eje y
+       title="ATE en subgrupos" )
+```
+
+    
+¿Se puede concluir que existen diferencias significativas en los ATE entre algunos grupos?
+    
+    
+    
+    
+# **6. BLP**
+
+Una forma de estudiar la variación del efecto de tratamiento es a través de la estimación del Best Linear Projection (o Best Linear Predictor). Este estudio permite, por un lado, evaluar la significancia de la heterogeneidad encontrada, a partir de un test motivado por Chernozhukov, Demirer, Duflo & Fernandez-Val (2018).
+
+## Test de calibración
+El test consiste en utilizar un estimador que corrige la BLP de acuerdo a su Propensity Score y a los valores esperados. Para ver en detalle la forma del estimador, pueden dirigirse al artículo original de Chernozhukov et al. (2018), al Tutorial de Athey y colegas (2020), o al artículo de Murakami et al. (2020). Lo importante es tener en mente que se estima una regresión del estilo 
+
+$$Y_i - \hat{Y_i} = \alpha  \cdot \hat{ATE} + \beta \cdot \hat{\tau_i}(x) + \varepsilon_i $$
+
+donde las hipótesis nulas i) $\alpha = 0$ indica que el valor del efecto de tratamiento para toda la muestra no es diferente de cero, y ii) $\beta = 0$ no existe heterogeneidad en el efecto de tratamiento. De forma particular, en términos del ajuste del módelo, y siguiendo a Athey y colegas (2020), si es que $\alpha = 1$ entonces la predicción promedio del ATE es adecuada, y si $\beta = 1$ entonces las predicciones del Causal Forest capturan la heterogeneidad subyacente de forma adecuada.
+
+```{r paso_14, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+tc <- test_calibration(cf)
+tc
+```
+
+## Interpretaciones
+Para estudiar el efecto de tratamiento con una covariable en particular, se puede utilizar la función *best_linera_projection()* para ver la magnitud de las pendientes. En este caso comenzaremos con la variable que indica si el sujeto en estudio está divorciado o no. ¿Cómo se interpreta este resultado?
+
+```{r paso_15, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
+best_linear_projection(cf, df_train$divorce)
+```
+> Prueba con otras covariables, puedes comenzar por aquellas que están en los primeros lugares del ranking de importancia.
+
+           
+## Optimización
+Entendiendo que las Best Linear Projection permite estudiar que el efecto de tratamiento varía con una determinada covariable: ¿cómo se interpretaría la heterogeneidad del efecto estudiado en este caso para las variables que escogiste? Este estudio de caso no es una programa o política pública determinada, sino que es un tratamiento experimental para evaluar las percepciones sobre las políticas de bienestar.
+
+En cambio, si estuvieramos estudiando una política o programa, sería de interés poder diseñar un óptimo.
+
+> 
+> 
+> 
+    
+
+###### Chernozhukov, V., Demirer, M., Duflo, E., & Fernandez-Val, I. (2018). Generic Machine Learning Inference on Heterogeneous Treatment Effects in Randomized Experiments, with an Application to Immunization in India (No. w24678). National Bureau of Economic Research.
+
+###### Murakami, K., Shimada, H., Ushifusa, Y., & Ida, T. (2020). Heterogeneous Treatment Effects of Nudge and Rebate: Causal Machine Learning in a Field Experiment on Electricity Conservation (No. e-20-003).
+
