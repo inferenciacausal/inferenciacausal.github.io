@@ -403,14 +403,8 @@ df &lt;- data.frame(lapply(df, function(x) as.numeric(as.character(x))))</code><
 <h1><strong>3. Descriptivos</strong></h1>
 <p>Comenzaremos el análisis echando una mirada al contenido de la base de datos. Para ello, veremos los estadísticos descriptivos de las variables. Para eso, puede utilizar las funciones de la librería <strong>fBasics</strong>, la cual debe estar instalada para poder usarse.</p>
 <pre class="r"><code># Hacemos una matriz con los estadísticos
-summ_stats &lt;- fBasics::basicStats(df)</code></pre>
-<pre><code>## Warning in min(X): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>## Warning in max(X): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>## Warning in min(X): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>## Warning in max(X): no non-missing arguments to max; returning -Inf</code></pre>
-<pre><code>## Warning in min(X): no non-missing arguments to min; returning Inf</code></pre>
-<pre><code>## Warning in max(X): no non-missing arguments to max; returning -Inf</code></pre>
-<pre class="r"><code>summ_stats &lt;- as.data.frame(t(summ_stats))
+summ_stats &lt;- fBasics::basicStats(df)
+summ_stats &lt;- as.data.frame(t(summ_stats))
 
 # Le ponemos títulos a la matriz para facilitar la lectura
 summ_stats &lt;- summ_stats[c(&quot;Mean&quot;, &quot;Stdev&quot;, &quot;Minimum&quot;, &quot;1. Quartile&quot;, &quot;Median&quot;,  &quot;3. Quartile&quot;, &quot;Maximum&quot;)] %&gt;% 
@@ -668,8 +662,7 @@ df_test &lt;- df[-train_idx,]</code></pre>
 <div id="estimando-heterogeneidad" class="section level1">
 <h1><strong>4. Estimando Heterogeneidad</strong></h1>
 <p>Para estimar el Random Forest utilizamos la función <em>causal_forest</em> del paquete <em>grf</em>. Debemos indicar cuáles son las covariables, la variable de resultado y la variable de tratamiento. Para esto primero definimos tales variables.</p>
-<pre class="r"><code>#, echo=TRUE, exercise=FALSE, results = &#39;hide&#39;, error = FALSE, warning = FALSE, message = FALSE}
-cf &lt;- causal_forest(
+<pre class="r"><code>cf &lt;- causal_forest(
   X = as.data.frame(df_train %&gt;% select(-c(&quot;Y&quot;, &quot;W&quot;))),
   Y = df_train$Y,
   W = df_train$W,
@@ -688,10 +681,8 @@ cf &lt;- causal_forest(
  xlim(0,1) +
  labs(title = &quot;Causal forest propensity scores&quot;,
       caption = &quot;The propensity scores are learned via GRF&#39;s regression forest&quot;)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<pre><code>## Warning: Removed 4 rows containing missing values (geom_bar).</code></pre>
 <p><img src="het_po_files/figure-html/paso_6-1.png" width="672" /></p>
-<p>¿Existe región de soporte? (Sí)</p>
+<p>Estudiando el gráfico, ¿puede concluirse que existe región de soporte?</p>
 </div>
 <div id="estudiando-la-heterogeneidad" class="section level2">
 <h2>Estudiando la heterogeneidad</h2>
@@ -748,27 +739,11 @@ estimated_sample_ate &lt;- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_ti
 <div id="aipw-ate" class="section level2">
 <h2>5.2. AIPW ATE</h2>
 <p>El segundo método es el Augmented Inverse-Propensity Weighted ATE, o en español el ATE aumentado por ponderación de propensión inversa. Esto quiere decir que se ponderan las observaciones dentro de los cuartiles de acuerdo a (el inverso de) la probabilidad de haber sido tratados (Propensity Score). Esto debe hacerse por cada subgrupo.</p>
-<pre class="r"><code>ateq1 &lt;-average_treatment_effect(cf,subset=df_train$ntile==1,method=&quot;AIPW&quot;)</code></pre>
-<pre><code>## Warning in average_treatment_effect(cf, subset = df_train$ntile == 1, method
-## = &quot;AIPW&quot;): Estimated treatment propensities go as high as 1 which means that
-## treatment effects for some treated units may not be well identified. In this
-## case, using `target.sample=control` may be helpful.</code></pre>
-<pre class="r"><code>ateq2 &lt;-average_treatment_effect(cf,subset=df_train$ntile==2,method=&quot;AIPW&quot;)</code></pre>
-<pre><code>## Warning in average_treatment_effect(cf, subset = df_train$ntile == 2, method
-## = &quot;AIPW&quot;): Estimated treatment propensities go as high as 1 which means that
-## treatment effects for some treated units may not be well identified. In this
-## case, using `target.sample=control` may be helpful.</code></pre>
-<pre class="r"><code>ateq3 &lt;-average_treatment_effect(cf,subset=df_train$ntile==3,method=&quot;AIPW&quot;)</code></pre>
-<pre><code>## Warning in average_treatment_effect(cf, subset = df_train$ntile == 3, method
-## = &quot;AIPW&quot;): Estimated treatment propensities go as high as 1 which means that
-## treatment effects for some treated units may not be well identified. In this
-## case, using `target.sample=control` may be helpful.</code></pre>
-<pre class="r"><code>ateq4 &lt;-average_treatment_effect(cf,subset=df_train$ntile==4,method=&quot;AIPW&quot;)</code></pre>
-<pre><code>## Warning in average_treatment_effect(cf, subset = df_train$ntile == 4, method
-## = &quot;AIPW&quot;): Estimated treatment propensities go as high as 1 which means that
-## treatment effects for some treated units may not be well identified. In this
-## case, using `target.sample=control` may be helpful.</code></pre>
-<pre class="r"><code>estimated_aipw_ate &lt;- data.frame(rbind(ateq1, ateq2, ateq3, ateq4))</code></pre>
+<pre class="r"><code>ateq1 &lt;-average_treatment_effect(cf,subset=df_train$ntile==1,method=&quot;AIPW&quot;)
+ateq2 &lt;-average_treatment_effect(cf,subset=df_train$ntile==2,method=&quot;AIPW&quot;)
+ateq3 &lt;-average_treatment_effect(cf,subset=df_train$ntile==3,method=&quot;AIPW&quot;)
+ateq4 &lt;-average_treatment_effect(cf,subset=df_train$ntile==4,method=&quot;AIPW&quot;)
+estimated_aipw_ate &lt;- data.frame(rbind(ateq1, ateq2, ateq3, ateq4))</code></pre>
 <p>Veamos cómo se comparan los resultados de ambos métodos en este escenario (experimental):</p>
 <pre class="r"><code>#Generando un data frame llamado G con columnas que indican el método y el cuartil de cada resultado:
   A &lt;- as.data.frame(estimated_sample_ate)
@@ -794,7 +769,6 @@ ggplot(G, aes(x=Cuartil, y=Estimate, colour=method)) +
        labs(x=&quot;Conditional Average Treatment Effect&quot;, #xlab() agrega etiqueta del eje X
        y=&quot;Frecuencia&quot;, #ylab() agrega etiqueta del eje y
        title=&quot;ATE en subgrupos&quot; )</code></pre>
-<pre><code>## Warning: Removed 4 rows containing missing values (geom_point).</code></pre>
 <p><img src="het_po_files/figure-html/paso_13-1.png" width="672" /></p>
 <p>¿Se puede concluir que existen diferencias significativas en los ATE entre algunos grupos?</p>
 </div>
@@ -824,9 +798,6 @@ tc</code></pre>
 <h2>Interpretaciones</h2>
 <p>Para estudiar el efecto de tratamiento con una covariable en particular, se puede utilizar la función <em>best_linera_projection()</em> para ver la magnitud de las pendientes. En este caso comenzaremos con la variable que indica si el sujeto en estudio está divorciado o no. ¿Cómo se interpreta este resultado?</p>
 <pre class="r"><code>best_linear_projection(cf, df_train$divorce)</code></pre>
-<pre><code>## Warning in best_linear_projection(cf, df_train$divorce): Estimated treatment
-## propensities take values between 0.077 and 1 and in particular get very close to
-## 0 or 1.</code></pre>
 <pre><code>## 
 ## Best linear projection of the conditional average treatment effect.
 ## Confidence intervals are cluster- and heteroskedasticity-robust (HC3):
@@ -843,10 +814,7 @@ tc</code></pre>
 <div id="optimización" class="section level2">
 <h2>Optimización</h2>
 <p>Entendiendo que las Best Linear Projection permite estudiar que el efecto de tratamiento varía con una determinada covariable: ¿cómo se interpretaría la heterogeneidad del efecto estudiado en este caso para las variables que escogiste? Este estudio de caso no es una programa o política pública determinada, sino que es un tratamiento experimental para evaluar las percepciones sobre las políticas de bienestar.</p>
-<p>En cambio, si estuvieramos estudiando una política o programa, sería de interés poder diseñar un óptimo.</p>
-<blockquote>
-
-</blockquote>
+<p>En cambio, si estuviéramos estudiando una política o programa, sería de interés poder diseñar un óptimo.</p>
 <div id="chernozhukov-v.-demirer-m.-duflo-e.-fernandez-val-i.-2018.-generic-machine-learning-inference-on-heterogeneous-treatment-effects-in-randomized-experiments-with-an-application-to-immunization-in-india-no.-w24678.-national-bureau-of-economic-research." class="section level6">
 <h6>Chernozhukov, V., Demirer, M., Duflo, E., &amp; Fernandez-Val, I. (2018). Generic Machine Learning Inference on Heterogeneous Treatment Effects in Randomized Experiments, with an Application to Immunization in India (No. w24678). National Bureau of Economic Research.</h6>
 </div>

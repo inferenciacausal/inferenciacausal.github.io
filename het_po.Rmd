@@ -114,7 +114,7 @@ df <- data.frame(lapply(df, function(x) as.numeric(as.character(x))))
 
 Comenzaremos el análisis echando una mirada al contenido de la base de datos. Para ello, veremos los estadísticos descriptivos de las variables. Para eso, puede utilizar las funciones de la librería **fBasics**, la cual debe estar instalada para poder usarse.
 
-```{r paso_3, echo=TRUE}
+```{r paso_3, echo=TRUE,warning=FALSE}
 # Hacemos una matriz con los estadísticos
 summ_stats <- fBasics::basicStats(df)
 summ_stats <- as.data.frame(t(summ_stats))
@@ -150,7 +150,6 @@ df_test <- df[-train_idx,]
 Para estimar el Random Forest utilizamos la función *causal_forest* del paquete *grf*. Debemos indicar cuáles son las covariables, la variable de resultado y la variable de tratamiento. Para esto primero definimos tales variables.
 
 ```{r paso_5, echo= TRUE}
-#, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
 cf <- causal_forest(
   X = as.data.frame(df_train %>% select(-c("Y", "W"))),
   Y = df_train$Y,
@@ -167,7 +166,7 @@ Un supuesto importante de la estimación en inferencia causal es que existe una 
 La predicción de Propensity Score queda guardado en la variable *W.hat*. En cambio, el valor real de los datos queda guardado en la variable *W.orig*. Utilizaremos el creador de gráficos *ggplot()* de la librería *ggplot2*. Se construyen gráficos tipo histograma y tipo densidad de kernel.
 
 
-```{r paso_6, echo=TRUE}
+```{r paso_6, echo=TRUE,warning=FALSE,message=FALSE}
 ggplot(data.frame(W.hat = cf$W.hat, W = factor(cf$W.orig))) +
  geom_histogram(aes(x = W.hat, y = stat(density), fill = W), alpha=0.3, position = "identity") +
  geom_density(aes(x = W.hat, color = W)) +
@@ -178,7 +177,8 @@ ggplot(data.frame(W.hat = cf$W.hat, W = factor(cf$W.orig))) +
 
 
 
-¿Existe región de soporte? (Sí)
+
+Estudiando el gráfico, ¿puede concluirse que existe región de soporte?
 
 
 
@@ -252,7 +252,7 @@ estimated_sample_ate <- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_tiles
 
 El segundo método es el Augmented Inverse-Propensity Weighted ATE, o en español el ATE aumentado por ponderación de propensión inversa. Esto quiere decir que se ponderan las observaciones dentro de los cuartiles de acuerdo a (el inverso de) la probabilidad de haber sido tratados (Propensity Score). Esto debe hacerse por cada subgrupo.
 
-```{r paso_12, echo=TRUE}
+```{r paso_12, echo=TRUE,warning=FALSE,message=FALSE}
 ateq1 <-average_treatment_effect(cf,subset=df_train$ntile==1,method="AIPW")
 ateq2 <-average_treatment_effect(cf,subset=df_train$ntile==2,method="AIPW")
 ateq3 <-average_treatment_effect(cf,subset=df_train$ntile==3,method="AIPW")
@@ -262,7 +262,7 @@ estimated_aipw_ate <- data.frame(rbind(ateq1, ateq2, ateq3, ateq4))
 
 Veamos cómo se comparan los resultados de ambos métodos en este escenario (experimental):
 
-```{r paso_13, echo=TRUE}
+```{r paso_13, echo=TRUE,warning=FALSE,message=FALSE}
 #Generando un data frame llamado G con columnas que indican el método y el cuartil de cada resultado:
   A <- as.data.frame(estimated_sample_ate)
   B <- as.data.frame(estimated_aipw_ate)
@@ -314,7 +314,7 @@ tc
 ## Interpretaciones
 Para estudiar el efecto de tratamiento con una covariable en particular, se puede utilizar la función *best_linera_projection()* para ver la magnitud de las pendientes. En este caso comenzaremos con la variable que indica si el sujeto en estudio está divorciado o no. ¿Cómo se interpreta este resultado?
 
-```{r paso_15, echo=TRUE}
+```{r paso_15, echo=TRUE,message=FALSE,warning=FALSE}
 best_linear_projection(cf, df_train$divorce)
 ```
 > Prueba con otras covariables, puedes comenzar por aquellas que están en los primeros lugares del ranking de importancia.
@@ -323,12 +323,8 @@ best_linear_projection(cf, df_train$divorce)
 ## Optimización
 Entendiendo que las Best Linear Projection permite estudiar que el efecto de tratamiento varía con una determinada covariable: ¿cómo se interpretaría la heterogeneidad del efecto estudiado en este caso para las variables que escogiste? Este estudio de caso no es una programa o política pública determinada, sino que es un tratamiento experimental para evaluar las percepciones sobre las políticas de bienestar.
 
-En cambio, si estuvieramos estudiando una política o programa, sería de interés poder diseñar un óptimo.
+En cambio, si estuviéramos estudiando una política o programa, sería de interés poder diseñar un óptimo.
 
-> 
-> 
-> 
-    
 
 ###### Chernozhukov, V., Demirer, M., Duflo, E., & Fernandez-Val, I. (2018). Generic Machine Learning Inference on Heterogeneous Treatment Effects in Randomized Experiments, with an Application to Immunization in India (No. w24678). National Bureau of Economic Research.
 
