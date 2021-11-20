@@ -6,4 +6,6 @@ navbar:
       href: index.html
     - text: "2SLS"
       href: 2SLS.html
+    - text: "CART"
+      href: cart.html
 output_dir: "docs"
