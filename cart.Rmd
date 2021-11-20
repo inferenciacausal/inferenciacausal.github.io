@@ -58,7 +58,7 @@ En este Data Tutorial estudiaremos el uso de árboles de decisión para problema
 # **1. Árboles de decisión**
 
 
-Los datos que se utilizarán en este Data Tutorial provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) ([ver el artículo](https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf)) . El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a ir a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento ($W$), respuesta ($Y$) y características observables de los votantes ($X$).
+Los datos que se utilizarán en este Data Tutorial provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) <a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf" target="_blank">(ver el artículo)</a>. El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a ir a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento ($W$), respuesta ($Y$) y características observables de los votantes ($X$).
 
 En la base, mostrada a continuación, $Y$ es la variable de resultado (votar o no votar) en la elección general del año 2004, $W$ es la variable de tratamiento (carta recibida o no) y el resto de las variables son covariables $X$, principalmente sobre el comportamiento de voto en elecciones anteriores. 
 
@@ -144,7 +144,7 @@ rpart.control(cp = , minsplit = , minbucket = , ...)
 
 2. $minsplit$ y $minbucket$ son los parámetros para fijar números mínimos de observaciones en nodos intermedios y terminales, respectivamente.
 
-A continuación, podrás implementar un árbol de decisión, considerando todas las covariables para explicar $Y$. Comienza fijando el parámetro $minbucket$ en 10 y $cp$ en $0.001$. Observa [en el siguiente enlace](https://a2ic.shinyapps.io/CART_g_1, target=\"_blank\"){target="_blank"} lo que ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización. 
+A continuación, podrás implementar un árbol de decisión, considerando todas las covariables para explicar $Y$. Comienza fijando el parámetro $minbucket$ en 10 y $cp$ en $0.001$. Observa <a href="https://a2ic.shinyapps.io/CART_g_1" target="_blank">en el siguiente enlace</a> lo que ocurre con la gráfica del árbol cuando varía el valor del ponderador de penalización. 
 
 En el árbol, en la parte superior de cada nodo, se presenta la respuesta media de $Y$ (porcentaje de votación) del nodo y, en la parte inferior de cada nodo, se presenta el porcentaje de muestra en el nodo. Sobre el gráfico se presenta el $MSE$ del árbol completo. Recuerda que este indicador tiene la forma $MSE = \sum^N_i (y_i - \hat(y)_i)^2$. Es decir, un promedio de cuánto se equivocan las predicciones de cada dato, en la muestra de evaluación o de entrenamiento.
 
@@ -179,7 +179,7 @@ $$\\[1in]$$
 
 Al variar el ponderador de costo de complejidad, varía el largo del árbol. Para cada valor de costo $cp$ se genera un árbol, y por lo tanto, se puede estimar la efectividad de cada árbol de predicción de acuerdo al indicador $cp$. Esta efectividad puede medirse a partir del valor de la $K-fold Cross Validation$. Esto consiste en tomar $K$ divisiones y entrenar el modelo con todos menos el $K$-ésimo grupo; en cambio, el grupo número $K$ se utiliza para evaluar el modelo. Luego se promedian los $K$ valores de $MSE$ evaluados para obtener un valor del proceso. 
 
-Lo que haremos entonces será graficar el valor de $K-fold CV$ de evaluación para cada uno de los árboles generados por los valores de $cp$ y su número de nodos. [En el siguiente enlace](https://a2ic.shinyapps.io/CART_g_2, target=\"_blank\"){target="_blank"} puedes variar el número $K$ que quieras darle a la validación.
+Lo que haremos entonces será graficar el valor de $K-fold CV$ de evaluación para cada uno de los árboles generados por los valores de $cp$ y su número de nodos. <a href="https://a2ic.shinyapps.io/CART_g_2" target="_blank">En el siguiente enlace</a> puedes variar el número $K$ que quieras darle a la validación.
 
 
 ```{r,eval=TRUE,echo=TRUE}
