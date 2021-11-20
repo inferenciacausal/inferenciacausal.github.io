@@ -403,14 +403,260 @@ df &lt;- data.frame(lapply(df, function(x) as.numeric(as.character(x))))</code><
 <h1><strong>3. Descriptivos</strong></h1>
 <p>Comenzaremos el análisis echando una mirada al contenido de la base de datos. Para ello, veremos los estadísticos descriptivos de las variables. Para eso, puede utilizar las funciones de la librería <strong>fBasics</strong>, la cual debe estar instalada para poder usarse.</p>
 <pre class="r"><code># Hacemos una matriz con los estadísticos
-summ_stats &lt;- fBasics::basicStats(df)
-summ_stats &lt;- as.data.frame(t(summ_stats))
+summ_stats &lt;- fBasics::basicStats(df)</code></pre>
+<pre><code>## Warning in min(X): no non-missing arguments to min; returning Inf</code></pre>
+<pre><code>## Warning in max(X): no non-missing arguments to max; returning -Inf</code></pre>
+<pre><code>## Warning in min(X): no non-missing arguments to min; returning Inf</code></pre>
+<pre><code>## Warning in max(X): no non-missing arguments to max; returning -Inf</code></pre>
+<pre><code>## Warning in min(X): no non-missing arguments to min; returning Inf</code></pre>
+<pre><code>## Warning in max(X): no non-missing arguments to max; returning -Inf</code></pre>
+<pre class="r"><code>summ_stats &lt;- as.data.frame(t(summ_stats))
 
 # Le ponemos títulos a la matriz para facilitar la lectura
 summ_stats &lt;- summ_stats[c(&quot;Mean&quot;, &quot;Stdev&quot;, &quot;Minimum&quot;, &quot;1. Quartile&quot;, &quot;Median&quot;,  &quot;3. Quartile&quot;, &quot;Maximum&quot;)] %&gt;% 
   rename(&quot;Lower quartile&quot; = &#39;1. Quartile&#39;, &quot;Upper quartile&quot;= &quot;3. Quartile&quot;)
 
 summ_stats</code></pre>
+<pre><code>##                      Mean      Stdev     Minimum Lower quartile      Median
+## year          1998.018869   7.229838 1986.000000    1991.000000 1998.000000
+## wrkstat          2.900022   0.000000    2.900022       2.900022    2.900022
+## hrs1            41.734891  11.219178    0.000000      40.000000   41.733318
+## hrs2            38.612901   1.893713    0.000000      38.613701   38.613701
+## evwork           1.098555   0.063557    1.000000       1.000000    1.139541
+## occ            449.436014 127.036091    1.000000     449.415990  449.415990
+## prestige        40.335133   6.329269   12.000000      40.335918   40.335918
+## wrkslf           1.277033   0.408711    1.000000       1.000000    1.000000
+## wrkgovt          1.704592   0.285617    1.000000       1.820366    1.820366
+## commute         20.229025   3.056729    0.000000      20.245865   20.245865
+## occ80          360.303936  14.131434    3.000000     360.306790  360.306790
+## prestg80        43.663905  12.772398   17.000000      34.000000   43.664024
+## indus80        570.176067 111.009886   10.000000     592.170840  592.170840
+## marital          2.401074   0.000000    2.401074       2.401074    2.401074
+## agewed          22.383305   2.742259   13.000000      22.382875   22.382875
+## divorce          1.583689   0.332713    1.000000       1.773332    1.773332
+## widowed          1.916558   0.216575    1.000000       1.967729    1.967729
+## spwrksta         2.743669   0.000000    2.743669       2.743669    2.743669
+## sphrs1          42.094719   7.567990    0.000000      42.094994   42.094994
+## sphrs2          41.260448   1.192986    1.000000      41.260448   41.260448
+## spevwork         1.134620   0.051820    1.000000       1.154567    1.154567
+## spocc80        354.612549   6.632169    3.000000     354.603150  354.603150
+## sppres80        45.067034   8.841055   17.000000      45.067539   45.067539
+## spind80        572.029759  37.190057   10.000000     574.434570  574.434570
+## sibs             3.786739   3.070464    0.000000       2.000000    3.000000
+## childs           1.807062   1.589174    0.000000       0.000000    2.000000
+## age             45.836960  17.050246   18.000000      32.000000   43.000000
+## agekdbrn        23.762448   3.661846    9.000000      23.000000   23.762058
+## educ            13.150697   3.058678    0.000000      12.000000   13.000000
+## paeduc          11.085718   3.552085    0.000000      10.000000   11.085849
+## maeduc          11.171182   3.289303    0.000000      10.000000   12.000000
+## speduc          13.275485   2.053229    0.000000      13.000000   13.276045
+## degree           1.444066   0.000000    1.444066       1.444066    1.444066
+## padeg            0.989728   0.000000    0.989728       0.989728    0.989728
+## madeg            0.916449   0.000000    0.916449       0.916449    0.916449
+## spdeg            1.521684   0.000000    1.521684       1.521684    1.521684
+## sex                   NaN         NA         Inf             NA          NA
+## race                  NaN         NA         Inf             NA          NA
+## res16            3.503250   0.000000    3.503250       3.503250    3.503250
+## reg16                 NaN         NA         Inf             NA          NA
+## mobile16         1.102186   0.294054    1.000000       1.000000    1.000000
+## family16         1.212501   0.952792    0.000000       0.000000    1.960909
+## mawork           1.287277   0.136859    1.000000       1.352475    1.352475
+## mawkborn         1.498278   0.142340    1.000000       1.538938    1.538938
+## born             1.004417   0.019419    1.000000       1.000000    1.000000
+## parborn          0.057930   0.240146    0.000000       0.000000    0.000000
+## granborn         2.488187   1.280189    1.000000       1.124630    2.000000
+## hompop           2.530402   1.418083    1.000000       1.000000    2.000000
+## babies           0.213218   0.544428    0.000000       0.000000    0.000000
+## preteen          0.258883   0.621285    0.000000       0.000000    0.000000
+## teens            0.185133   0.498235    0.000000       0.000000    0.000000
+## adults           1.864673   0.785216    1.000000       1.000000    2.000000
+## unrelat          0.159338   0.435138    0.000000       0.000000    0.000000
+## earnrs           1.413879   0.985686    0.000000       1.000000    1.000000
+## income          10.555570   0.000000   10.555570      10.555570   10.555570
+## rincome          9.746330   0.000000    9.746330       9.746330    9.746330
+## income86        13.044246   0.590948    1.000000      13.073240   13.073240
+## partyid          2.821634   0.000000    2.821634       2.821634    2.821634
+## polviews         4.122009   0.000000    4.122009       4.122009    4.122009
+## W                0.532911   0.498923    0.000000       0.000000    1.000000
+## Y                0.249109   0.432503    0.000000       0.000000    0.000000
+## wrkstat_miss     0.000000   0.000000    0.000000       0.000000    0.000000
+## hrs1_miss        0.377599   0.484793    0.000000       0.000000    0.000000
+## hrs2_miss        0.979623   0.141289    0.000000       1.000000    1.000000
+## evwork_miss      0.672892   0.469163    0.000000       0.000000    1.000000
+## occ_miss         0.000000   0.000000    0.000000       0.000000    0.000000
+## prestige_miss    0.000000   0.000000    0.000000       0.000000    0.000000
+## wrkslf_miss      0.045582   0.208579    0.000000       0.000000    0.000000
+## wrkgovt_miss     0.516318   0.499740    0.000000       0.000000    1.000000
+## commute_miss     0.962646   0.189630    0.000000       1.000000    1.000000
+## occ80_miss       0.129779   0.336065    0.000000       0.000000    0.000000
+## prestg80_miss    0.000000   0.000000    0.000000       0.000000    0.000000
+## indus80_miss     0.130081   0.336397    0.000000       0.000000    0.000000
+## marital_miss     0.000000   0.000000    0.000000       0.000000    0.000000
+## agewed_miss      0.697466   0.459362    0.000000       0.000000    1.000000
+## divorce_miss     0.407493   0.491375    0.000000       0.000000    0.000000
+## widowed_miss     0.350913   0.477262    0.000000       0.000000    0.000000
+## spwrksta_miss    0.503511   0.499995    0.000000       0.000000    1.000000
+## sphrs1_miss      0.671466   0.469686    0.000000       0.000000    1.000000
+## sphrs2_miss      0.988838   0.105062    0.000000       1.000000    1.000000
+## spevwork_miss    0.848034   0.358993    0.000000       1.000000    1.000000
+## spocc80_miss     0.572048   0.494789    0.000000       0.000000    1.000000
+## sppres80_miss    0.000000   0.000000    0.000000       0.000000    0.000000
+## spind80_miss     0.572404   0.494737    0.000000       0.000000    1.000000
+## sibs_miss        0.041632   0.199750    0.000000       0.000000    0.000000
+## childs_miss      0.000000   0.000000    0.000000       0.000000    0.000000
+## age_miss         0.000000   0.000000    0.000000       0.000000    0.000000
+## agekdbrn_miss    0.537327   0.498612    0.000000       0.000000    1.000000
+## educ_miss        0.000000   0.000000    0.000000       0.000000    0.000000
+## paeduc_miss      0.200510   0.400388    0.000000       0.000000    0.000000
+## maeduc_miss      0.082195   0.274666    0.000000       0.000000    0.000000
+## speduc_miss      0.524464   0.499408    0.000000       0.000000    1.000000
+## degree_miss      0.000000   0.000000    0.000000       0.000000    0.000000
+## padeg_miss       0.200538   0.400408    0.000000       0.000000    0.000000
+## madeg_miss       0.082195   0.274666    0.000000       0.000000    0.000000
+## spdeg_miss       0.524464   0.499408    0.000000       0.000000    1.000000
+## sex_miss         0.000000   0.000000    0.000000       0.000000    0.000000
+## race_miss        0.000000   0.000000    0.000000       0.000000    0.000000
+## res16_miss       0.041632   0.199750    0.000000       0.000000    0.000000
+## reg16_miss       0.000000   0.000000    0.000000       0.000000    0.000000
+## mobile16_miss    0.041632   0.199750    0.000000       0.000000    0.000000
+## family16_miss    0.041632   0.199750    0.000000       0.000000    0.000000
+## mawork_miss      0.734326   0.441697    0.000000       0.000000    1.000000
+## mawkborn_miss    0.842274   0.364489    0.000000       1.000000    1.000000
+## born_miss        0.041632   0.199750    0.000000       0.000000    0.000000
+## parborn_miss     0.041632   0.199750    0.000000       0.000000    0.000000
+## granborn_miss    0.090560   0.286986    0.000000       0.000000    0.000000
+## hompop_miss      0.000000   0.000000    0.000000       0.000000    0.000000
+## babies_miss      0.000000   0.000000    0.000000       0.000000    0.000000
+## preteen_miss     0.000000   0.000000    0.000000       0.000000    0.000000
+## teens_miss       0.000000   0.000000    0.000000       0.000000    0.000000
+## adults_miss      0.000000   0.000000    0.000000       0.000000    0.000000
+## unrelat_miss     0.296638   0.456782    0.000000       0.000000    0.000000
+## earnrs_miss      0.000000   0.000000    0.000000       0.000000    0.000000
+## income_miss      0.000000   0.000000    0.000000       0.000000    0.000000
+## rincome_miss     0.297488   0.457159    0.000000       0.000000    0.000000
+## income86_miss    0.789671   0.407548    0.000000       1.000000    1.000000
+## partyid_miss     0.000000   0.000000    0.000000       0.000000    0.000000
+## polviews_miss    0.078410   0.268820    0.000000       0.000000    0.000000
+##               Upper quartile     Maximum
+## year             2004.000000 2010.000000
+## wrkstat             2.900022    2.900022
+## hrs1               41.733318   89.000000
+## hrs2               38.613701   89.000000
+## evwork              1.139541    1.139541
+## occ               449.415990  984.000000
+## prestige           40.335918   82.000000
+## wrkslf              1.879911    1.879911
+## wrkgovt             1.820366    1.820366
+## commute            20.245865   90.000000
+## occ80             360.306790  714.000000
+## prestg80           51.000000   86.000000
+## indus80           592.170840  592.170840
+## marital             2.401074    2.401074
+## agewed             22.382875   90.000000
+## divorce             1.773332    1.773332
+## widowed             1.967729    1.967729
+## spwrksta            2.743669    2.743669
+## sphrs1             42.094994   89.000000
+## sphrs2             41.260448   89.000000
+## spevwork            1.154567    1.154567
+## spocc80           354.603150  901.000000
+## sppres80           45.067539   86.000000
+## spind80           574.434570  951.000000
+## sibs                5.000000   55.000000
+## childs              3.000000    7.000000
+## age                58.000000   88.000000
+## agekdbrn           23.762058   65.000000
+## educ               16.000000   20.000000
+## paeduc             12.000000   20.000000
+## maeduc             12.000000   20.000000
+## speduc             13.276045   20.000000
+## degree              1.444066    1.444066
+## padeg               0.989728    0.989728
+## madeg               0.916449    0.916449
+## spdeg               1.521684    1.521684
+## sex                       NA        -Inf
+## race                      NA        -Inf
+## res16               3.503250    3.503250
+## reg16                     NA        -Inf
+## mobile16            1.000000    1.948312
+## family16            1.960909    1.960909
+## mawork              1.352475    1.352475
+## mawkborn            1.538938    1.538938
+## born                1.000000    1.089790
+## parborn             0.000000    1.053402
+## granborn            4.000000    4.000000
+## hompop              3.000000   12.000000
+## babies              0.000000    6.000000
+## preteen             0.000000    6.000000
+## teens               0.000000    7.000000
+## adults              2.000000    7.000000
+## unrelat             0.161421    7.000000
+## earnrs              2.000000    7.000000
+## income             10.555570   10.555570
+## rincome             9.746330    9.746330
+## income86           13.073240   13.073240
+## partyid             2.821634    2.821634
+## polviews            4.122009    4.122009
+## W                   1.000000    1.000000
+## Y                   0.000000    1.000000
+## wrkstat_miss        0.000000    0.000000
+## hrs1_miss           1.000000    1.000000
+## hrs2_miss           1.000000    1.000000
+## evwork_miss         1.000000    1.000000
+## occ_miss            0.000000    0.000000
+## prestige_miss       0.000000    0.000000
+## wrkslf_miss         0.000000    1.000000
+## wrkgovt_miss        1.000000    1.000000
+## commute_miss        1.000000    1.000000
+## occ80_miss          0.000000    1.000000
+## prestg80_miss       0.000000    0.000000
+## indus80_miss        0.000000    1.000000
+## marital_miss        0.000000    0.000000
+## agewed_miss         1.000000    1.000000
+## divorce_miss        1.000000    1.000000
+## widowed_miss        1.000000    1.000000
+## spwrksta_miss       1.000000    1.000000
+## sphrs1_miss         1.000000    1.000000
+## sphrs2_miss         1.000000    1.000000
+## spevwork_miss       1.000000    1.000000
+## spocc80_miss        1.000000    1.000000
+## sppres80_miss       0.000000    0.000000
+## spind80_miss        1.000000    1.000000
+## sibs_miss           0.000000    1.000000
+## childs_miss         0.000000    0.000000
+## age_miss            0.000000    0.000000
+## agekdbrn_miss       1.000000    1.000000
+## educ_miss           0.000000    0.000000
+## paeduc_miss         0.000000    1.000000
+## maeduc_miss         0.000000    1.000000
+## speduc_miss         1.000000    1.000000
+## degree_miss         0.000000    0.000000
+## padeg_miss          0.000000    1.000000
+## madeg_miss          0.000000    1.000000
+## spdeg_miss          1.000000    1.000000
+## sex_miss            0.000000    0.000000
+## race_miss           0.000000    0.000000
+## res16_miss          0.000000    1.000000
+## reg16_miss          0.000000    0.000000
+## mobile16_miss       0.000000    1.000000
+## family16_miss       0.000000    1.000000
+## mawork_miss         1.000000    1.000000
+## mawkborn_miss       1.000000    1.000000
+## born_miss           0.000000    1.000000
+## parborn_miss        0.000000    1.000000
+## granborn_miss       0.000000    1.000000
+## hompop_miss         0.000000    0.000000
+## babies_miss         0.000000    0.000000
+## preteen_miss        0.000000    0.000000
+## teens_miss          0.000000    0.000000
+## adults_miss         0.000000    0.000000
+## unrelat_miss        1.000000    1.000000
+## earnrs_miss         0.000000    0.000000
+## income_miss         0.000000    0.000000
+## rincome_miss        1.000000    1.000000
+## income86_miss       1.000000    1.000000
+## partyid_miss        0.000000    0.000000
+## polviews_miss       0.000000    1.000000</code></pre>
 <p>Se dejará un 20% de la muestra para validación, y se utilizará el 80% de los datos para entrenar los árboles.</p>
 <pre class="r"><code>train_fraction &lt;- 0.80
 n &lt;- dim(df)[1]
@@ -422,6 +668,13 @@ df_test &lt;- df[-train_idx,]</code></pre>
 <div id="estimando-heterogeneidad" class="section level1">
 <h1><strong>4. Estimando Heterogeneidad</strong></h1>
 <p>Para estimar el Random Forest utilizamos la función <em>causal_forest</em> del paquete <em>grf</em>. Debemos indicar cuáles son las covariables, la variable de resultado y la variable de tratamiento. Para esto primero definimos tales variables.</p>
+<pre class="r"><code>#, echo=TRUE, exercise=FALSE, results = &#39;hide&#39;, error = FALSE, warning = FALSE, message = FALSE}
+cf &lt;- causal_forest(
+  X = as.data.frame(df_train %&gt;% select(-c(&quot;Y&quot;, &quot;W&quot;))),
+  Y = df_train$Y,
+  W = df_train$W,
+  num.trees = 1000
+)</code></pre>
 <blockquote>
 <p>De acuerdo a Athey, un buen número de árboles a utilizar es el número de individuos en la muestra. ¡Prueba en tu computador cambiando el número de árboles a estimar!</p>
 </blockquote>
@@ -435,6 +688,9 @@ df_test &lt;- df[-train_idx,]</code></pre>
  xlim(0,1) +
  labs(title = &quot;Causal forest propensity scores&quot;,
       caption = &quot;The propensity scores are learned via GRF&#39;s regression forest&quot;)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<pre><code>## Warning: Removed 4 rows containing missing values (geom_bar).</code></pre>
+<p><img src="het_po_files/figure-html/paso_6-1.png" width="672" /></p>
 <p>¿Existe región de soporte? (Sí)</p>
 </div>
 <div id="estudiando-la-heterogeneidad" class="section level2">
@@ -448,6 +704,7 @@ oob_tauhat_cf_se &lt;- sqrt(oob_pred$variance.estimates)</code></pre>
 </blockquote>
 <p>Se debe evaluar entonces si es que existe heterogeneidad de los efectos. Para ello graficamos un histograma de las estimaciones del CATE esperado (o tau hat).</p>
 <pre class="r"><code>hist(oob_tauhat_cf, main=&quot;Causal forests: out-of-bag CATE&quot;)</code></pre>
+<p><img src="het_po_files/figure-html/paso_8-1.png" width="672" /></p>
 <p>¿Existe heterogeneidad? ¿Se concentra en efectos positivos, negativos o ambos?</p>
 </div>
 <div id="importancia-de-variables" class="section level2">
@@ -458,6 +715,12 @@ var_imp &lt;- c(variable_importance(cf))
 names(var_imp) &lt;- colnames(as.data.frame(df_train %&gt;% select(-c(&quot;Y&quot;, &quot;W&quot;))))
 sorted_var_imp &lt;- sort(var_imp, decreasing=TRUE)
 head(sorted_var_imp, 15)</code></pre>
+<pre><code>##         hrs1    hrs1_miss  evwork_miss       earnrs       speduc  sphrs1_miss 
+##   0.10382318   0.05379900   0.05186639   0.05066754   0.04593565   0.04468485 
+##          age         year         educ       evwork      spind80 wrkgovt_miss 
+##   0.04236086   0.04171802   0.04102976   0.03682493   0.03662311   0.03376389 
+##      widowed      wrkgovt     sppres80 
+##   0.03056343   0.02665197   0.02402876</code></pre>
 <blockquote>
 <p>Es muy importante destacar que no sólo por estar abajo en el ranking de importancia quiere decir que una variable NO es importante para la heterogeneidad del efecto. Si dos variables tienen efectos importantes para la heterogeneidad, y tienen alta correlación entre ellas, puede ocurrir que el árbol utilice sólo una de ellas para la partición y no la otra, dejando a la primera alta en el ranking y a la segunda no.</p>
 </blockquote>
@@ -485,11 +748,27 @@ estimated_sample_ate &lt;- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_ti
 <div id="aipw-ate" class="section level2">
 <h2>5.2. AIPW ATE</h2>
 <p>El segundo método es el Augmented Inverse-Propensity Weighted ATE, o en español el ATE aumentado por ponderación de propensión inversa. Esto quiere decir que se ponderan las observaciones dentro de los cuartiles de acuerdo a (el inverso de) la probabilidad de haber sido tratados (Propensity Score). Esto debe hacerse por cada subgrupo.</p>
-<pre class="r"><code>ateq1 &lt;-average_treatment_effect(cf,subset=df_train$ntile==1,method=&quot;AIPW&quot;)
-ateq2 &lt;-average_treatment_effect(cf,subset=df_train$ntile==2,method=&quot;AIPW&quot;)
-ateq3 &lt;-average_treatment_effect(cf,subset=df_train$ntile==3,method=&quot;AIPW&quot;)
-ateq4 &lt;-average_treatment_effect(cf,subset=df_train$ntile==4,method=&quot;AIPW&quot;)
-estimated_aipw_ate &lt;- data.frame(rbind(ateq1, ateq2, ateq3, ateq4))</code></pre>
+<pre class="r"><code>ateq1 &lt;-average_treatment_effect(cf,subset=df_train$ntile==1,method=&quot;AIPW&quot;)</code></pre>
+<pre><code>## Warning in average_treatment_effect(cf, subset = df_train$ntile == 1, method
+## = &quot;AIPW&quot;): Estimated treatment propensities go as high as 1 which means that
+## treatment effects for some treated units may not be well identified. In this
+## case, using `target.sample=control` may be helpful.</code></pre>
+<pre class="r"><code>ateq2 &lt;-average_treatment_effect(cf,subset=df_train$ntile==2,method=&quot;AIPW&quot;)</code></pre>
+<pre><code>## Warning in average_treatment_effect(cf, subset = df_train$ntile == 2, method
+## = &quot;AIPW&quot;): Estimated treatment propensities go as high as 1 which means that
+## treatment effects for some treated units may not be well identified. In this
+## case, using `target.sample=control` may be helpful.</code></pre>
+<pre class="r"><code>ateq3 &lt;-average_treatment_effect(cf,subset=df_train$ntile==3,method=&quot;AIPW&quot;)</code></pre>
+<pre><code>## Warning in average_treatment_effect(cf, subset = df_train$ntile == 3, method
+## = &quot;AIPW&quot;): Estimated treatment propensities go as high as 1 which means that
+## treatment effects for some treated units may not be well identified. In this
+## case, using `target.sample=control` may be helpful.</code></pre>
+<pre class="r"><code>ateq4 &lt;-average_treatment_effect(cf,subset=df_train$ntile==4,method=&quot;AIPW&quot;)</code></pre>
+<pre><code>## Warning in average_treatment_effect(cf, subset = df_train$ntile == 4, method
+## = &quot;AIPW&quot;): Estimated treatment propensities go as high as 1 which means that
+## treatment effects for some treated units may not be well identified. In this
+## case, using `target.sample=control` may be helpful.</code></pre>
+<pre class="r"><code>estimated_aipw_ate &lt;- data.frame(rbind(ateq1, ateq2, ateq3, ateq4))</code></pre>
 <p>Veamos cómo se comparan los resultados de ambos métodos en este escenario (experimental):</p>
 <pre class="r"><code>#Generando un data frame llamado G con columnas que indican el método y el cuartil de cada resultado:
   A &lt;- as.data.frame(estimated_sample_ate)
@@ -515,6 +794,8 @@ ggplot(G, aes(x=Cuartil, y=Estimate, colour=method)) +
        labs(x=&quot;Conditional Average Treatment Effect&quot;, #xlab() agrega etiqueta del eje X
        y=&quot;Frecuencia&quot;, #ylab() agrega etiqueta del eje y
        title=&quot;ATE en subgrupos&quot; )</code></pre>
+<pre><code>## Warning: Removed 4 rows containing missing values (geom_point).</code></pre>
+<p><img src="het_po_files/figure-html/paso_13-1.png" width="672" /></p>
 <p>¿Se puede concluir que existen diferencias significativas en los ATE entre algunos grupos?</p>
 </div>
 </div>
@@ -528,11 +809,33 @@ ggplot(G, aes(x=Cuartil, y=Estimate, colour=method)) +
 <p>donde las hipótesis nulas i) <span class="math inline">\(\alpha = 0\)</span> indica que el valor del efecto de tratamiento para toda la muestra no es diferente de cero, y ii) <span class="math inline">\(\beta = 0\)</span> no existe heterogeneidad en el efecto de tratamiento. De forma particular, en términos del ajuste del módelo, y siguiendo a Athey y colegas (2020), si es que <span class="math inline">\(\alpha = 1\)</span> entonces la predicción promedio del ATE es adecuada, y si <span class="math inline">\(\beta = 1\)</span> entonces las predicciones del Causal Forest capturan la heterogeneidad subyacente de forma adecuada.</p>
 <pre class="r"><code>tc &lt;- test_calibration(cf)
 tc</code></pre>
+<pre><code>## 
+## Best linear fit using forest predictions (on held-out data)
+## as well as the mean forest prediction as regressors, along
+## with one-sided heteroskedasticity-robust (HC3) SEs:
+## 
+##                                Estimate Std. Error t value    Pr(&gt;t)    
+## mean.forest.prediction         1.002122   0.014948  67.038 &lt; 2.2e-16 ***
+## differential.forest.prediction 1.403648   0.090092  15.580 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>
 <div id="interpretaciones" class="section level2">
 <h2>Interpretaciones</h2>
 <p>Para estudiar el efecto de tratamiento con una covariable en particular, se puede utilizar la función <em>best_linera_projection()</em> para ver la magnitud de las pendientes. En este caso comenzaremos con la variable que indica si el sujeto en estudio está divorciado o no. ¿Cómo se interpreta este resultado?</p>
 <pre class="r"><code>best_linear_projection(cf, df_train$divorce)</code></pre>
+<pre><code>## Warning in best_linear_projection(cf, df_train$divorce): Estimated treatment
+## propensities take values between 0.077 and 1 and in particular get very close to
+## 0 or 1.</code></pre>
+<pre><code>## 
+## Best linear projection of the conditional average treatment effect.
+## Confidence intervals are cluster- and heteroskedasticity-robust (HC3):
+## 
+##              Estimate Std. Error  t value  Pr(&gt;|t|)    
+## (Intercept) -0.434460   0.031484 -13.7994 &lt; 2.2e-16 ***
+## A1           0.073087   0.019361   3.7749 0.0001607 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <blockquote>
 <p>Prueba con otras covariables, puedes comenzar por aquellas que están en los primeros lugares del ranking de importancia.</p>
 </blockquote>
