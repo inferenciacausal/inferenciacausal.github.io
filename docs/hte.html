@@ -368,7 +368,6 @@ body {
 </div>
 <div id="este-tutorial-es-una-adaptación-del-tutorial-estimation-of-heterogeneous-treatment-effects-realizado-por-athey-wager-hadad-klosin-muhelbach-nie-y-schaelling-en-mayo-de-2020-para-su-curso-de-machine-learning-and-causal-inference." class="section level6">
 <h6>Este tutorial es una adaptación del tutorial “Estimation of Heterogeneous Treatment Effects” realizado por Athey, Wager, Hadad, Klosin, Muhelbach, Nie y Schaelling en mayo de 2020 para su curso de “Machine Learning and Causal Inference”.</h6>
-<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 </div>
 <div id="cargar-las-librerías-en-r" class="section level2">
@@ -379,7 +378,6 @@ library(grf)
 library(ggplot2)
 library(estimatr)
 library(dplyr)</code></pre>
-<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="preparar-los-datos" class="section level2">
 <h2><strong>1.3. Preparar los datos</strong></h2>
@@ -674,7 +672,6 @@ df_test &lt;- df[-train_idx,]</code></pre>
       caption = &quot;The propensity scores are learned via GRF&#39;s regression forest&quot;)</code></pre>
 <p><img src="hte_files/figure-html/paso_6-1.png" width="672" /></p>
 <p>Estudiando el gráfico, ¿puede concluirse que existe región de soporte?</p>
-<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="estudiando-la-heterogeneidad" class="section level2">
 <h2><strong>2.2 Estudiando la heterogeneidad</strong></h2>
@@ -689,7 +686,6 @@ oob_tauhat_cf_se &lt;- sqrt(oob_pred$variance.estimates)</code></pre>
 <pre class="r"><code>hist(oob_tauhat_cf, main=&quot;Causal forests: out-of-bag CATE&quot;)</code></pre>
 <p><img src="hte_files/figure-html/paso_8-1.png" width="672" /></p>
 <p>¿Existe heterogeneidad? ¿Se concentra en efectos positivos, negativos o ambos?</p>
-<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="importancia-de-variables" class="section level2">
 <h2><strong>2.3 Importancia de Variables</strong></h2>
@@ -729,7 +725,6 @@ ols_sample_ate &lt;- lm_robust(Y ~ ntile + ntile:W, data = df_train)
 
 #Para que quede una tabla resumen con los resultados
 estimated_sample_ate &lt;- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_tiles), c(&quot;Estimate&quot;, &quot;Std. Error&quot;)]</code></pre>
-<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="aipw-ate" class="section level2">
 <h2><strong>3.2. AIPW ATE</strong></h2>
@@ -789,7 +784,6 @@ tc</code></pre>
 ## differential.forest.prediction 1.403648   0.090092  15.580 &lt; 2.2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="interpretaciones" class="section level2">
 <h2><strong>4.2 Interpretaciones</strong></h2>
@@ -807,7 +801,6 @@ tc</code></pre>
 <blockquote>
 <p>Prueba con otras covariables, puedes comenzar por aquellas que están en los primeros lugares del ranking de importancia.</p>
 </blockquote>
-<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="optimización" class="section level2">
 <h2><strong>4.3 Optimización</strong></h2>

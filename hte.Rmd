@@ -78,8 +78,6 @@ La base de datos puedes descargarla [aquí](https://github.com/AndyFerver/IN4402
 ###### Este tutorial es una adaptación del tutorial "Estimation of Heterogeneous Treatment Effects" realizado por Athey, Wager, Hadad, Klosin, Muhelbach, Nie y Schaelling en mayo de 2020 para su curso de "Machine Learning and Causal Inference". 
 
 
-$$\\[1in]$$
-
 
 
 ## **1.2. Cargar las librerías en R**
@@ -94,10 +92,6 @@ library(estimatr)
 library(dplyr)
 ```
 
-
-
-
-$$\\[1in]$$
 
 
 
@@ -192,7 +186,6 @@ ggplot(data.frame(W.hat = cf$W.hat, W = factor(cf$W.orig))) +
 
 Estudiando el gráfico, ¿puede concluirse que existe región de soporte?
 
-$$\\[1in]$$
 
 
 
@@ -216,11 +209,6 @@ hist(oob_tauhat_cf, main="Causal forests: out-of-bag CATE")
 
 
 ¿Existe heterogeneidad? ¿Se concentra en efectos positivos, negativos o ambos?
-
-
-
-
-$$\\[1in]$$
 
 
 
@@ -274,7 +262,6 @@ estimated_sample_ate <- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_tiles
 
 ```
 
-$$\\[1in]$$
 
 
 
@@ -352,8 +339,6 @@ tc
 ```
 
 
-$$\\[1in]$$
-
 
 
 ## **4.2 Interpretaciones**
@@ -365,8 +350,6 @@ best_linear_projection(cf, df_train$divorce)
 ```
 > Prueba con otras covariables, puedes comenzar por aquellas que están en los primeros lugares del ranking de importancia.
 
-
-$$\\[1in]$$
 
 
 
