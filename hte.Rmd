@@ -54,17 +54,15 @@ select <- dplyr::select
 set.seed(12345)
 ```
 
-# **1. Introducción**
-
-## Objetivo
 
 El objetivo de este módulo es proponer un caso que puedas analizar en tu propio computador. 
 
-## Caso: percepciones sobre el gasto público y el Estado de Bienestar
 
-Los datos provienen de la base de datos "welfare" del artículo de Green & Kern (2012). La Encuesta Social General (GSS, por sus siglas en inglés) es una encuesta comúnmente utilizada en Estados Unidos, la cual presenta efectos experimentales altamente replicados y una muestra suficientemente grande para ser analizada adecuadamente. 
+# **1. Percepciones sobre el gasto público**
 
-La base de datos evalúa las percepciones que tienen los estadounidenses sobre programas de gobierno que se alineen al denominado "Estado de Bienestar" ("welfare"), puesto que existe un prejuicio generalizado hacia programas y beneficios sociales. Un experimento conocido sobre esta encuesta asigna aleatoriamente a los respondentes a una evaluación de si el gasto público es "demasiado alto", "adecuado" o "demasiado bajo", en determinados programas. La condición experimental varía una única palabra en el fraseo de uno de los programas sociales: el tratamiento consiste en utilizar la palabra "bienestar" en vez de la frase "asistencia a los pobres" (welfare/assistance to the poor).
+Los datos provienen de la base de datos $welfare$ del artículo de Green & Kern (2012). La Encuesta Social General (GSS, por sus siglas en inglés) es una encuesta comúnmente utilizada en Estados Unidos, la cual presenta efectos experimentales altamente replicados y una muestra suficientemente grande para ser analizada adecuadamente. 
+
+La base de datos evalúa las percepciones que tienen los estadounidenses sobre programas de gobierno que se alineen al denominado "Estado de Bienestar" ($welfare$), puesto que existe un prejuicio generalizado hacia programas y beneficios sociales. Un experimento conocido sobre esta encuesta asigna aleatoriamente a los respondentes a una evaluación de si el gasto público es "demasiado alto", "adecuado" o "demasiado bajo", en determinados programas. La condición experimental varía una única palabra en el fraseo de uno de los programas sociales: el tratamiento consiste en utilizar la palabra "bienestar" en vez de la frase "asistencia a los pobres" (welfare/assistance to the poor).
 
 Los resultados de numerosos análisis de esta encuesta, desde 1986 hasta 2010, muestran que al ser expuestos al fraseo del programa como "bienestar social" (welfare), los encuestados muestran una probabilidad de 30% y 50% más de responder que el gasto es "demasiado alto" (too much). Algunas de las razones expuestas para explicar estas diferencias se basan en estereotipos generalizados sobre los beneficiarios de los programas de bienestar y de la gente más pobre, particularmente en estereotipos raciales; también se esgrimen argumentos sobre orientaciones político-ideológicas sobre individualismo y conservadurismo.
 
@@ -79,8 +77,6 @@ La base de datos puedes descargarla [aquí](https://github.com/AndyFerver/IN4402
 
 ###### Este tutorial es una adaptación del tutorial "Estimation of Heterogeneous Treatment Effects" realizado por Athey, Wager, Hadad, Klosin, Muhelbach, Nie y Schaelling en mayo de 2020 para su curso de "Machine Learning and Causal Inference". 
 
-# **2. Inicio**
-
 ## Cargar las librerías en R
 
 Comience cargando las librerías que usaremos en este tutorial. A ellas debe agregarles las tradicionales usadas para cargar la base de datos y algunas de manejo básico de bases.
@@ -93,7 +89,17 @@ library(estimatr)
 library(dplyr)
 ```
 
-## Preparar los datos
+
+
+
+$$\\[1in]$$
+
+
+
+
+
+
+# **2. Preparar los datos**
 
 Limpiaremos de datos faltantes, y botaremos aquellas columnas que no sean variables de resultado, de tratamiento o covariables.
 
@@ -103,14 +109,13 @@ df <- na.omit(df)
 df <- df %>% select(-c("id", "_merge"))
 ```
 
-Puede ser una buena práctica cambiar el nombre de las variables, para utilidad posterior. Como utilizaremos funciones recientes de Causal Trees y Causal Random Forests, propuestas por Athey y otros, estas todavía no aceptan datos categorizados como "factor", por lo que es recomebdable transformarlos a "numeric". Para esto último utilizaremos las funciones *lapply()* y *as.numeric()*.
+Puede ser una buena práctica cambiar el nombre de las variables, para utilidad posterior. Como utilizaremos funciones recientes de Causal Trees y Causal Random Forests, propuestas por Athey y otros, estas todavía no aceptan datos categorizados como "factor", por lo que es recomebdable transformarlos a "numeric". Para esto último utilizaremos las funciones *lapply( )* y *as.numeric( )*.
 
 ```{r paso_2, echo=TRUE, exercise=FALSE, results = 'hide', error = FALSE, warning = FALSE, message = FALSE}
 df <- df %>% rename(Y=y,W=w)
 df <- data.frame(lapply(df, function(x) as.numeric(as.character(x))))
 ```
 
-# **3. Descriptivos**
 
 Comenzaremos el análisis echando una mirada al contenido de la base de datos. Para ello, veremos los estadísticos descriptivos de las variables. Para eso, puede utilizar las funciones de la librería **fBasics**, la cual debe estar instalada para poder usarse.
 
@@ -127,7 +132,7 @@ summ_stats
 ```
 
 
-Se dejará un 20% de la muestra para validación, y se utilizará el 80% de los datos para entrenar los árboles.
+Se dejará un 20% de la muestra para validación, y se utilizará el $80\%$ de los datos para entrenar los árboles.
 
 ```{r paso_4, echo=TRUE}
 train_fraction <- 0.80
@@ -139,12 +144,13 @@ df_test <- df[-train_idx,]
 
 
 
-¿Cuál es la proporción de individuos tratados en la muestra? (50%)
+¿Cuál es la proporción de individuos tratados en la muestra?
+
+$$\\[1in]$$
 
 
 
-
-# **4. Estimando Heterogeneidad**
+# **3. Estimando Heterogeneidad**
 
 
 Para estimar el Random Forest utilizamos la función *causal_forest* del paquete *grf*. Debemos indicar cuáles son las covariables, la variable de resultado y la variable de tratamiento. Para esto primero definimos tales variables.
@@ -160,10 +166,11 @@ cf <- causal_forest(
 
 > De acuerdo a Athey, un buen número de árboles a utilizar es el número de individuos en la muestra. ¡Prueba en tu computador cambiando el número de árboles a estimar!
 
-## Examinando la región de soporte común
+## **3.1 Examinando la región de soporte común**
+
 Un supuesto importante de la estimación en inferencia causal es que existe una región de soporte común. Esto es, que hay observaciones tratadas y no tratadas en la misma región. Para eso, estudiaremos el Propensity Score estimado por la función.
 
-La predicción de Propensity Score queda guardado en la variable *W.hat*. En cambio, el valor real de los datos queda guardado en la variable *W.orig*. Utilizaremos el creador de gráficos *ggplot()* de la librería *ggplot2*. Se construyen gráficos tipo histograma y tipo densidad de kernel.
+La predicción de Propensity Score queda guardado en la variable *W.hat*. En cambio, el valor real de los datos queda guardado en la variable *W.orig*. Utilizaremos el creador de gráficos *ggplot( )* de la librería *ggplot2*. Se construyen gráficos tipo histograma y tipo densidad de kernel.
 
 
 ```{r paso_6, echo=TRUE,warning=FALSE,message=FALSE}
@@ -183,8 +190,9 @@ Estudiando el gráfico, ¿puede concluirse que existe región de soporte?
 
 
 
-## Estudiando la heterogeneidad
-Utilizaremos la misma muestra de entrenamiento para estudiar la heterogeneidad de los efectos, por ello, utilizaremos errores "out of the bag" (OOB) para validar los resultados. Utilizaremos la función *predict()*. Es también importante estimar los errores estándar de las predicciones, para examinar la significancia de ellas. Hay que recordar que las predicciones del CATE esperado se conocen como $\hat(\tau) $, es decir, tau "gorro", o tau "hat" en inglés.
+## **3.2 Estudiando la heterogeneidad**
+
+Utilizaremos la misma muestra de entrenamiento para estudiar la heterogeneidad de los efectos, por ello, utilizaremos errores "out of the bag" (OOB) para validar los resultados. Utilizaremos la función *predict( )*. Es también importante estimar los errores estándar de las predicciones, para examinar la significancia de ellas. Hay que recordar que las predicciones del $CATE$ esperado se conocen como $\hat{\tau}$, es decir, tau "gorro", o tau "hat" en inglés.
 
 ```{r paso_7, echo=TRUE}
 oob_pred <- predict(cf, estimate.variance=TRUE)
@@ -207,7 +215,8 @@ hist(oob_tauhat_cf, main="Causal forests: out-of-bag CATE")
 
 
 
-## Importancia de Variables
+## **3.3 Importancia de Variables**
+
 La función utilizada permite estudiar cuáles fueron aquellas variables que más afectaron la construcción de los árboles. Al promediar cuánto aporta cada variable en disminuir la suma de errores cuadrados o la impureza de las hojas, entonces se puede "rankear" la importancia de las variables. 
 
 ```{r paso_9, echo=TRUE}
@@ -221,9 +230,16 @@ head(sorted_var_imp, 15)
 
 > Es muy importante destacar que no sólo por estar abajo en el ranking de importancia quiere decir que una variable NO es importante para la heterogeneidad del efecto. Si dos variables tienen efectos importantes para la heterogeneidad, y tienen alta correlación entre ellas, puede ocurrir que el árbol utilice sólo una de ellas para la partición y no la otra, dejando a la primera alta en el ranking y a la segunda no.
 
-# **5. Heterogeneidad en subgrupos**
 
-Para esto, generaremos *cuartiles* del efecto de tratamiento. Ordenando la muestra desde la observación con menor CATE esperado hasta la observación con mayor CATE esperado, dividiremos la muestra en cuatro, generándose así cuatro *cuartiles* de observaciones, y que, por lo tanto, son grupos que permiten una comparación con un adecuado poder estadístico. Para la generación de cuartiles, y la incorporación de una columna a nuestra base de datos de entrenamiento utilizamos la función *ntile()*. En este caso dividiremos la muestra en cuatro (cuartiles). Si dividiésemos la muestra en 5, serían quintiles.
+$$\\[1in]$$
+
+
+
+
+
+# **4. Heterogeneidad en subgrupos**
+
+Para esto, generaremos *cuartiles* del efecto de tratamiento. Ordenando la muestra desde la observación con menor $CATE$ esperado hasta la observación con mayor CATE esperado, dividiremos la muestra en cuatro, generándose así cuatro *cuartiles* de observaciones, y que, por lo tanto, son grupos que permiten una comparación con un adecuado poder estadístico. Para la generación de cuartiles, y la incorporación de una columna a nuestra base de datos de entrenamiento utilizamos la función *ntile( )*. En este caso dividiremos la muestra en cuatro (cuartiles). Si dividiésemos la muestra en 5, serían quintiles.
 
 ```{r paso_10, echo=TRUE}
 num_tiles <- 4 
@@ -233,9 +249,9 @@ df_train$ntile <- factor(ntile(oob_tauhat_cf, n=num_tiles))
 
 > Prueba cambiando el número de grupos de 4 a 5, y analiza cómo se modifican los resultados.
 
-Para estimar el efecto de tratamiento (ATE) en cada subgrupo se pueden utilizar dos métodos. El primero compara "en bruto" las diferencias de resultado entre tratados y controles. El segundo método construye un estimador robusto. En escenarios experimentales ambos métodos debiesen llevar a resultados similares, pero en datos observacionales el segundo método asegura estimaciones insesgadas y eficientes. 
+Para estimar el efecto de tratamiento ($ATE$) en cada subgrupo se pueden utilizar dos métodos. El primero compara "en bruto" las diferencias de resultado entre tratados y controles. El segundo método construye un estimador robusto. En escenarios experimentales ambos métodos debiesen llevar a resultados similares, pero en datos observacionales el segundo método asegura estimaciones insesgadas y eficientes. 
 
-## 5.1. Sample ATE
+## **4.1. Sample ATE**
 
 El primer método compara los efectos de tratamiento de tratados y de no tratados en cada uno de los cuartiles conformados. Para esto basta con realizar una regresión lineal (robusta), que nos permite a su vez estimar errores estandar. Esta regresión incluye términos de interacción con los indicadores de cada cuartil. La regresión con errores estándares robustos proviene de la función *lm_robust*, de la librería *estimater*.
 
@@ -248,9 +264,9 @@ estimated_sample_ate <- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_tiles
 
 ```
 
-## 5.2. AIPW ATE
+## **4.2. AIPW ATE**
 
-El segundo método es el Augmented Inverse-Propensity Weighted ATE, o en español el ATE aumentado por ponderación de propensión inversa. Esto quiere decir que se ponderan las observaciones dentro de los cuartiles de acuerdo a (el inverso de) la probabilidad de haber sido tratados (Propensity Score). Esto debe hacerse por cada subgrupo.
+El segundo método es el $Augmented$ $Inverse-Propensity$ $Weighted$ $ATE$, o en español el $ATE$ aumentado por ponderación de propensión inversa. Esto quiere decir que se ponderan las observaciones dentro de los cuartiles de acuerdo a (el inverso de) la probabilidad de haber sido tratados (Propensity Score). Esto debe hacerse por cada subgrupo.
 
 ```{r paso_12, echo=TRUE,warning=FALSE,message=FALSE}
 ateq1 <-average_treatment_effect(cf,subset=df_train$ntile==1,method="AIPW")
@@ -290,17 +306,25 @@ ggplot(G, aes(x=Cuartil, y=Estimate, colour=method)) +
 ```
 
     
-¿Se puede concluir que existen diferencias significativas en los ATE entre algunos grupos?
+¿Se puede concluir que existen diferencias significativas en los $ATE$ entre algunos grupos?
     
     
     
     
-# **6. BLP**
+$$\\[1in]$$
+
+
+
+
+
+    
+# **5. BLP**
 
 Una forma de estudiar la variación del efecto de tratamiento es a través de la estimación del Best Linear Projection (o Best Linear Predictor). Este estudio permite, por un lado, evaluar la significancia de la heterogeneidad encontrada, a partir de un test motivado por Chernozhukov, Demirer, Duflo & Fernandez-Val (2018).
 
-## Test de calibración
-El test consiste en utilizar un estimador que corrige la BLP de acuerdo a su Propensity Score y a los valores esperados. Para ver en detalle la forma del estimador, pueden dirigirse al artículo original de Chernozhukov et al. (2018), al Tutorial de Athey y colegas (2020), o al artículo de Murakami et al. (2020). Lo importante es tener en mente que se estima una regresión del estilo 
+## **5.1 Test de calibración**
+
+El test consiste en utilizar un estimador que corrige la $BLP$ de acuerdo a su Propensity Score y a los valores esperados. Para ver en detalle la forma del estimador, pueden dirigirse al artículo original de Chernozhukov et al. (2018), al Tutorial de Athey y colegas (2020), o al artículo de Murakami et al. (2020). Lo importante es tener en mente que se estima una regresión del estilo 
 
 $$Y_i - \hat{Y_i} = \alpha  \cdot \hat{ATE} + \beta \cdot \hat{\tau_i}(x) + \varepsilon_i $$
 
@@ -311,8 +335,9 @@ tc <- test_calibration(cf)
 tc
 ```
 
-## Interpretaciones
-Para estudiar el efecto de tratamiento con una covariable en particular, se puede utilizar la función *best_linera_projection()* para ver la magnitud de las pendientes. En este caso comenzaremos con la variable que indica si el sujeto en estudio está divorciado o no. ¿Cómo se interpreta este resultado?
+## **5.2 Interpretaciones**
+
+Para estudiar el efecto de tratamiento con una covariable en particular, se puede utilizar la función *best_linear_projection( )* para ver la magnitud de las pendientes. En este caso comenzaremos con la variable que indica si el sujeto en estudio está divorciado o no. ¿Cómo se interpreta este resultado?
 
 ```{r paso_15, echo=TRUE,message=FALSE,warning=FALSE}
 best_linear_projection(cf, df_train$divorce)
@@ -320,7 +345,8 @@ best_linear_projection(cf, df_train$divorce)
 > Prueba con otras covariables, puedes comenzar por aquellas que están en los primeros lugares del ranking de importancia.
 
            
-## Optimización
+## **5.3 Optimización**
+
 Entendiendo que las Best Linear Projection permite estudiar que el efecto de tratamiento varía con una determinada covariable: ¿cómo se interpretaría la heterogeneidad del efecto estudiado en este caso para las variables que escogiste? Este estudio de caso no es una programa o política pública determinada, sino que es un tratamiento experimental para evaluar las percepciones sobre las políticas de bienestar.
 
 En cambio, si estuviéramos estudiando una política o programa, sería de interés poder diseñar un óptimo.
