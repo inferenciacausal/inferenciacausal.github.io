@@ -361,17 +361,18 @@ body {
 <p>Los resultados de numerosos análisis de esta encuesta, desde 1986 hasta 2010, muestran que al ser expuestos al fraseo del programa como “bienestar social” (welfare), los encuestados muestran una probabilidad de 30% y 50% más de responder que el gasto es “demasiado alto” (too much). Algunas de las razones expuestas para explicar estas diferencias se basan en estereotipos generalizados sobre los beneficiarios de los programas de bienestar y de la gente más pobre, particularmente en estereotipos raciales; también se esgrimen argumentos sobre orientaciones político-ideológicas sobre individualismo y conservadurismo.</p>
 <p>El estudio que se busca replicar en este tutorial estudia la heterogeneidad de dicho tratamiento.</p>
 <div id="datos" class="section level2">
-<h2>Datos</h2>
+<h2><strong>1.1. Datos</strong></h2>
 <p>La base de datos puedes descargarla <a href="https://github.com/AndyFerver/IN4402/blob/2a00eecd73f963c62dd18c9e726f09b61df36988/welfarelabel.rar">aquí</a>, y si necesitas descargar este tutorial en formato Rmd para verlo en tu computador de manera offline, puedes hacerlo desde <a href="https://github.com/AndyFerver/IN4402/blob/1b224508b213f0699491a9d3683f092b593b21b9/het_po.rar">aquí</a>.</p>
 <div id="green-d.-p.-kern-h.-l.-2012.-modeling-heterogeneous-treatment-effects-in-survey-experiments-with-bayesian-additive-regression-trees.-public-opinion-quarterly-763-491-511." class="section level6">
 <h6>Green, D. P., &amp; Kern, H. L. (2012). Modeling heterogeneous treatment effects in survey experiments with Bayesian additive regression trees. Public opinion quarterly, 76(3), 491-511.</h6>
 </div>
 <div id="este-tutorial-es-una-adaptación-del-tutorial-estimation-of-heterogeneous-treatment-effects-realizado-por-athey-wager-hadad-klosin-muhelbach-nie-y-schaelling-en-mayo-de-2020-para-su-curso-de-machine-learning-and-causal-inference." class="section level6">
 <h6>Este tutorial es una adaptación del tutorial “Estimation of Heterogeneous Treatment Effects” realizado por Athey, Wager, Hadad, Klosin, Muhelbach, Nie y Schaelling en mayo de 2020 para su curso de “Machine Learning and Causal Inference”.</h6>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 </div>
 <div id="cargar-las-librerías-en-r" class="section level2">
-<h2>Cargar las librerías en R</h2>
+<h2><strong>1.2. Cargar las librerías en R</strong></h2>
 <p>Comience cargando las librerías que usaremos en este tutorial. A ellas debe agregarles las tradicionales usadas para cargar la base de datos y algunas de manejo básico de bases.</p>
 <pre class="r"><code>library(fBasics)
 library(grf)
@@ -380,9 +381,8 @@ library(estimatr)
 library(dplyr)</code></pre>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
-</div>
-<div id="preparar-los-datos" class="section level1">
-<h1><strong>2. Preparar los datos</strong></h1>
+<div id="preparar-los-datos" class="section level2">
+<h2><strong>1.3. Preparar los datos</strong></h2>
 <p>Limpiaremos de datos faltantes, y botaremos aquellas columnas que no sean variables de resultado, de tratamiento o covariables.</p>
 <pre class="r"><code>df &lt;- read_csv(&quot;welfarelabel.csv&quot;)
 df &lt;- na.omit(df)
@@ -649,8 +649,9 @@ df_test &lt;- df[-train_idx,]</code></pre>
 <p>¿Cuál es la proporción de individuos tratados en la muestra?</p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
+</div>
 <div id="estimando-heterogeneidad" class="section level1">
-<h1><strong>3. Estimando Heterogeneidad</strong></h1>
+<h1><strong>2. Estimando Heterogeneidad</strong></h1>
 <p>Para estimar el Random Forest utilizamos la función <em>causal_forest</em> del paquete <em>grf</em>. Debemos indicar cuáles son las covariables, la variable de resultado y la variable de tratamiento. Para esto primero definimos tales variables.</p>
 <pre class="r"><code>cf &lt;- causal_forest(
   X = as.data.frame(df_train %&gt;% select(-c(&quot;Y&quot;, &quot;W&quot;))),
@@ -662,7 +663,7 @@ df_test &lt;- df[-train_idx,]</code></pre>
 <p>De acuerdo a Athey, un buen número de árboles a utilizar es el número de individuos en la muestra. ¡Prueba en tu computador cambiando el número de árboles a estimar!</p>
 </blockquote>
 <div id="examinando-la-región-de-soporte-común" class="section level2">
-<h2><strong>3.1 Examinando la región de soporte común</strong></h2>
+<h2><strong>2.1 Examinando la región de soporte común</strong></h2>
 <p>Un supuesto importante de la estimación en inferencia causal es que existe una región de soporte común. Esto es, que hay observaciones tratadas y no tratadas en la misma región. Para eso, estudiaremos el Propensity Score estimado por la función.</p>
 <p>La predicción de Propensity Score queda guardado en la variable <em>W.hat</em>. En cambio, el valor real de los datos queda guardado en la variable <em>W.orig</em>. Utilizaremos el creador de gráficos <em>ggplot( )</em> de la librería <em>ggplot2</em>. Se construyen gráficos tipo histograma y tipo densidad de kernel.</p>
 <pre class="r"><code>ggplot(data.frame(W.hat = cf$W.hat, W = factor(cf$W.orig))) +
@@ -673,9 +674,10 @@ df_test &lt;- df[-train_idx,]</code></pre>
       caption = &quot;The propensity scores are learned via GRF&#39;s regression forest&quot;)</code></pre>
 <p><img src="hte_files/figure-html/paso_6-1.png" width="672" /></p>
 <p>Estudiando el gráfico, ¿puede concluirse que existe región de soporte?</p>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="estudiando-la-heterogeneidad" class="section level2">
-<h2><strong>3.2 Estudiando la heterogeneidad</strong></h2>
+<h2><strong>2.2 Estudiando la heterogeneidad</strong></h2>
 <p>Utilizaremos la misma muestra de entrenamiento para estudiar la heterogeneidad de los efectos, por ello, utilizaremos errores “out of the bag” (OOB) para validar los resultados. Utilizaremos la función <em>predict( )</em>. Es también importante estimar los errores estándar de las predicciones, para examinar la significancia de ellas. Hay que recordar que las predicciones del <span class="math inline">\(CATE\)</span> esperado se conocen como <span class="math inline">\(\hat{\tau}\)</span>, es decir, tau “gorro”, o tau “hat” en inglés.</p>
 <pre class="r"><code>oob_pred &lt;- predict(cf, estimate.variance=TRUE)
 oob_tauhat_cf &lt;- oob_pred$predictions
@@ -687,9 +689,10 @@ oob_tauhat_cf_se &lt;- sqrt(oob_pred$variance.estimates)</code></pre>
 <pre class="r"><code>hist(oob_tauhat_cf, main=&quot;Causal forests: out-of-bag CATE&quot;)</code></pre>
 <p><img src="hte_files/figure-html/paso_8-1.png" width="672" /></p>
 <p>¿Existe heterogeneidad? ¿Se concentra en efectos positivos, negativos o ambos?</p>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="importancia-de-variables" class="section level2">
-<h2><strong>3.3 Importancia de Variables</strong></h2>
+<h2><strong>2.3 Importancia de Variables</strong></h2>
 <p>La función utilizada permite estudiar cuáles fueron aquellas variables que más afectaron la construcción de los árboles. Al promediar cuánto aporta cada variable en disminuir la suma de errores cuadrados o la impureza de las hojas, entonces se puede “rankear” la importancia de las variables.</p>
 <pre class="r"><code>#Tabla
 var_imp &lt;- c(variable_importance(cf))
@@ -709,7 +712,7 @@ head(sorted_var_imp, 15)</code></pre>
 </div>
 </div>
 <div id="heterogeneidad-en-subgrupos" class="section level1">
-<h1><strong>4. Heterogeneidad en subgrupos</strong></h1>
+<h1><strong>3. Heterogeneidad en subgrupos</strong></h1>
 <p>Para esto, generaremos <em>cuartiles</em> del efecto de tratamiento. Ordenando la muestra desde la observación con menor <span class="math inline">\(CATE\)</span> esperado hasta la observación con mayor CATE esperado, dividiremos la muestra en cuatro, generándose así cuatro <em>cuartiles</em> de observaciones, y que, por lo tanto, son grupos que permiten una comparación con un adecuado poder estadístico. Para la generación de cuartiles, y la incorporación de una columna a nuestra base de datos de entrenamiento utilizamos la función <em>ntile( )</em>. En este caso dividiremos la muestra en cuatro (cuartiles). Si dividiésemos la muestra en 5, serían quintiles.</p>
 <pre class="r"><code>num_tiles &lt;- 4 
 df_train$cate &lt;- oob_tauhat_cf
@@ -719,16 +722,17 @@ df_train$ntile &lt;- factor(ntile(oob_tauhat_cf, n=num_tiles))</code></pre>
 </blockquote>
 <p>Para estimar el efecto de tratamiento (<span class="math inline">\(ATE\)</span>) en cada subgrupo se pueden utilizar dos métodos. El primero compara “en bruto” las diferencias de resultado entre tratados y controles. El segundo método construye un estimador robusto. En escenarios experimentales ambos métodos debiesen llevar a resultados similares, pero en datos observacionales el segundo método asegura estimaciones insesgadas y eficientes.</p>
 <div id="sample-ate" class="section level2">
-<h2><strong>4.1. Sample ATE</strong></h2>
+<h2><strong>3.1. Sample ATE</strong></h2>
 <p>El primer método compara los efectos de tratamiento de tratados y de no tratados en cada uno de los cuartiles conformados. Para esto basta con realizar una regresión lineal (robusta), que nos permite a su vez estimar errores estandar. Esta regresión incluye términos de interacción con los indicadores de cada cuartil. La regresión con errores estándares robustos proviene de la función <em>lm_robust</em>, de la librería <em>estimater</em>.</p>
 <pre class="r"><code>#Para hacer la estimación
 ols_sample_ate &lt;- lm_robust(Y ~ ntile + ntile:W, data = df_train)
 
 #Para que quede una tabla resumen con los resultados
 estimated_sample_ate &lt;- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_tiles), c(&quot;Estimate&quot;, &quot;Std. Error&quot;)]</code></pre>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="aipw-ate" class="section level2">
-<h2><strong>4.2. AIPW ATE</strong></h2>
+<h2><strong>3.2. AIPW ATE</strong></h2>
 <p>El segundo método es el <span class="math inline">\(Augmented\)</span> <span class="math inline">\(Inverse-Propensity\)</span> <span class="math inline">\(Weighted\)</span> <span class="math inline">\(ATE\)</span>, o en español el <span class="math inline">\(ATE\)</span> aumentado por ponderación de propensión inversa. Esto quiere decir que se ponderan las observaciones dentro de los cuartiles de acuerdo a (el inverso de) la probabilidad de haber sido tratados (Propensity Score). Esto debe hacerse por cada subgrupo.</p>
 <pre class="r"><code>ateq1 &lt;-average_treatment_effect(cf,subset=df_train$ntile==1,method=&quot;AIPW&quot;)
 ateq2 &lt;-average_treatment_effect(cf,subset=df_train$ntile==2,method=&quot;AIPW&quot;)
@@ -766,10 +770,10 @@ ggplot(G, aes(x=Cuartil, y=Estimate, colour=method)) +
 </div>
 </div>
 <div id="blp" class="section level1">
-<h1><strong>5. BLP</strong></h1>
+<h1><strong>4. BLP</strong></h1>
 <p>Una forma de estudiar la variación del efecto de tratamiento es a través de la estimación del Best Linear Projection (o Best Linear Predictor). Este estudio permite, por un lado, evaluar la significancia de la heterogeneidad encontrada, a partir de un test motivado por Chernozhukov, Demirer, Duflo &amp; Fernandez-Val (2018).</p>
 <div id="test-de-calibración" class="section level2">
-<h2><strong>5.1 Test de calibración</strong></h2>
+<h2><strong>4.1 Test de calibración</strong></h2>
 <p>El test consiste en utilizar un estimador que corrige la <span class="math inline">\(BLP\)</span> de acuerdo a su Propensity Score y a los valores esperados. Para ver en detalle la forma del estimador, pueden dirigirse al artículo original de Chernozhukov et al. (2018), al Tutorial de Athey y colegas (2020), o al artículo de Murakami et al. (2020). Lo importante es tener en mente que se estima una regresión del estilo</p>
 <p><span class="math display">\[Y_i - \hat{Y_i} = \alpha  \cdot \hat{ATE} + \beta \cdot \hat{\tau_i}(x) + \varepsilon_i \]</span></p>
 <p>donde las hipótesis nulas i) <span class="math inline">\(\alpha = 0\)</span> indica que el valor del efecto de tratamiento para toda la muestra no es diferente de cero, y ii) <span class="math inline">\(\beta = 0\)</span> no existe heterogeneidad en el efecto de tratamiento. De forma particular, en términos del ajuste del módelo, y siguiendo a Athey y colegas (2020), si es que <span class="math inline">\(\alpha = 1\)</span> entonces la predicción promedio del ATE es adecuada, y si <span class="math inline">\(\beta = 1\)</span> entonces las predicciones del Causal Forest capturan la heterogeneidad subyacente de forma adecuada.</p>
@@ -785,9 +789,10 @@ tc</code></pre>
 ## differential.forest.prediction 1.403648   0.090092  15.580 &lt; 2.2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="interpretaciones" class="section level2">
-<h2><strong>5.2 Interpretaciones</strong></h2>
+<h2><strong>4.2 Interpretaciones</strong></h2>
 <p>Para estudiar el efecto de tratamiento con una covariable en particular, se puede utilizar la función <em>best_linear_projection( )</em> para ver la magnitud de las pendientes. En este caso comenzaremos con la variable que indica si el sujeto en estudio está divorciado o no. ¿Cómo se interpreta este resultado?</p>
 <pre class="r"><code>best_linear_projection(cf, df_train$divorce)</code></pre>
 <pre><code>## 
@@ -802,9 +807,10 @@ tc</code></pre>
 <blockquote>
 <p>Prueba con otras covariables, puedes comenzar por aquellas que están en los primeros lugares del ranking de importancia.</p>
 </blockquote>
+<p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="optimización" class="section level2">
-<h2><strong>5.3 Optimización</strong></h2>
+<h2><strong>4.3 Optimización</strong></h2>
 <p>Entendiendo que las Best Linear Projection permite estudiar que el efecto de tratamiento varía con una determinada covariable: ¿cómo se interpretaría la heterogeneidad del efecto estudiado en este caso para las variables que escogiste? Este estudio de caso no es una programa o política pública determinada, sino que es un tratamiento experimental para evaluar las percepciones sobre las políticas de bienestar.</p>
 <p>En cambio, si estuviéramos estudiando una política o programa, sería de interés poder diseñar un óptimo.</p>
 <div id="chernozhukov-v.-demirer-m.-duflo-e.-fernandez-val-i.-2018.-generic-machine-learning-inference-on-heterogeneous-treatment-effects-in-randomized-experiments-with-an-application-to-immunization-in-india-no.-w24678.-national-bureau-of-economic-research." class="section level6">

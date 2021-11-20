@@ -68,7 +68,7 @@ Los resultados de numerosos análisis de esta encuesta, desde 1986 hasta 2010, m
 
 El estudio que se busca replicar en este tutorial estudia la heterogeneidad de dicho tratamiento. 
 
-## Datos
+## **1.1. Datos**
 
 La base de datos puedes descargarla [aquí](https://github.com/AndyFerver/IN4402/blob/2a00eecd73f963c62dd18c9e726f09b61df36988/welfarelabel.rar), y si necesitas descargar este tutorial en formato Rmd para verlo en tu computador de manera offline, puedes hacerlo desde [aquí](https://github.com/AndyFerver/IN4402/blob/1b224508b213f0699491a9d3683f092b593b21b9/het_po.rar).
 
@@ -77,7 +77,12 @@ La base de datos puedes descargarla [aquí](https://github.com/AndyFerver/IN4402
 
 ###### Este tutorial es una adaptación del tutorial "Estimation of Heterogeneous Treatment Effects" realizado por Athey, Wager, Hadad, Klosin, Muhelbach, Nie y Schaelling en mayo de 2020 para su curso de "Machine Learning and Causal Inference". 
 
-## Cargar las librerías en R
+
+$$\\[1in]$$
+
+
+
+## **1.2. Cargar las librerías en R**
 
 Comience cargando las librerías que usaremos en este tutorial. A ellas debe agregarles las tradicionales usadas para cargar la base de datos y algunas de manejo básico de bases.
 
@@ -99,7 +104,7 @@ $$\\[1in]$$
 
 
 
-# **2. Preparar los datos**
+## **1.3. Preparar los datos**
 
 Limpiaremos de datos faltantes, y botaremos aquellas columnas que no sean variables de resultado, de tratamiento o covariables.
 
@@ -150,7 +155,7 @@ $$\\[1in]$$
 
 
 
-# **3. Estimando Heterogeneidad**
+# **2. Estimando Heterogeneidad**
 
 
 Para estimar el Random Forest utilizamos la función *causal_forest* del paquete *grf*. Debemos indicar cuáles son las covariables, la variable de resultado y la variable de tratamiento. Para esto primero definimos tales variables.
@@ -166,7 +171,7 @@ cf <- causal_forest(
 
 > De acuerdo a Athey, un buen número de árboles a utilizar es el número de individuos en la muestra. ¡Prueba en tu computador cambiando el número de árboles a estimar!
 
-## **3.1 Examinando la región de soporte común**
+## **2.1 Examinando la región de soporte común**
 
 Un supuesto importante de la estimación en inferencia causal es que existe una región de soporte común. Esto es, que hay observaciones tratadas y no tratadas en la misma región. Para eso, estudiaremos el Propensity Score estimado por la función.
 
@@ -187,10 +192,11 @@ ggplot(data.frame(W.hat = cf$W.hat, W = factor(cf$W.orig))) +
 
 Estudiando el gráfico, ¿puede concluirse que existe región de soporte?
 
+$$\\[1in]$$
 
 
 
-## **3.2 Estudiando la heterogeneidad**
+## **2.2 Estudiando la heterogeneidad**
 
 Utilizaremos la misma muestra de entrenamiento para estudiar la heterogeneidad de los efectos, por ello, utilizaremos errores "out of the bag" (OOB) para validar los resultados. Utilizaremos la función *predict( )*. Es también importante estimar los errores estándar de las predicciones, para examinar la significancia de ellas. Hay que recordar que las predicciones del $CATE$ esperado se conocen como $\hat{\tau}$, es decir, tau "gorro", o tau "hat" en inglés.
 
@@ -214,8 +220,12 @@ hist(oob_tauhat_cf, main="Causal forests: out-of-bag CATE")
 
 
 
+$$\\[1in]$$
 
-## **3.3 Importancia de Variables**
+
+
+
+## **2.3 Importancia de Variables**
 
 La función utilizada permite estudiar cuáles fueron aquellas variables que más afectaron la construcción de los árboles. Al promediar cuánto aporta cada variable en disminuir la suma de errores cuadrados o la impureza de las hojas, entonces se puede "rankear" la importancia de las variables. 
 
@@ -237,7 +247,7 @@ $$\\[1in]$$
 
 
 
-# **4. Heterogeneidad en subgrupos**
+# **3. Heterogeneidad en subgrupos**
 
 Para esto, generaremos *cuartiles* del efecto de tratamiento. Ordenando la muestra desde la observación con menor $CATE$ esperado hasta la observación con mayor CATE esperado, dividiremos la muestra en cuatro, generándose así cuatro *cuartiles* de observaciones, y que, por lo tanto, son grupos que permiten una comparación con un adecuado poder estadístico. Para la generación de cuartiles, y la incorporación de una columna a nuestra base de datos de entrenamiento utilizamos la función *ntile( )*. En este caso dividiremos la muestra en cuatro (cuartiles). Si dividiésemos la muestra en 5, serían quintiles.
 
@@ -251,7 +261,7 @@ df_train$ntile <- factor(ntile(oob_tauhat_cf, n=num_tiles))
 
 Para estimar el efecto de tratamiento ($ATE$) en cada subgrupo se pueden utilizar dos métodos. El primero compara "en bruto" las diferencias de resultado entre tratados y controles. El segundo método construye un estimador robusto. En escenarios experimentales ambos métodos debiesen llevar a resultados similares, pero en datos observacionales el segundo método asegura estimaciones insesgadas y eficientes. 
 
-## **4.1. Sample ATE**
+## **3.1. Sample ATE**
 
 El primer método compara los efectos de tratamiento de tratados y de no tratados en cada uno de los cuartiles conformados. Para esto basta con realizar una regresión lineal (robusta), que nos permite a su vez estimar errores estandar. Esta regresión incluye términos de interacción con los indicadores de cada cuartil. La regresión con errores estándares robustos proviene de la función *lm_robust*, de la librería *estimater*.
 
@@ -264,7 +274,13 @@ estimated_sample_ate <- coef(summary(ols_sample_ate))[(num_tiles+1):(2*num_tiles
 
 ```
 
-## **4.2. AIPW ATE**
+$$\\[1in]$$
+
+
+
+
+
+## **3.2. AIPW ATE**
 
 El segundo método es el $Augmented$ $Inverse-Propensity$ $Weighted$ $ATE$, o en español el $ATE$ aumentado por ponderación de propensión inversa. Esto quiere decir que se ponderan las observaciones dentro de los cuartiles de acuerdo a (el inverso de) la probabilidad de haber sido tratados (Propensity Score). Esto debe hacerse por cada subgrupo.
 
@@ -318,11 +334,11 @@ $$\\[1in]$$
 
 
     
-# **5. BLP**
+# **4. BLP**
 
 Una forma de estudiar la variación del efecto de tratamiento es a través de la estimación del Best Linear Projection (o Best Linear Predictor). Este estudio permite, por un lado, evaluar la significancia de la heterogeneidad encontrada, a partir de un test motivado por Chernozhukov, Demirer, Duflo & Fernandez-Val (2018).
 
-## **5.1 Test de calibración**
+## **4.1 Test de calibración**
 
 El test consiste en utilizar un estimador que corrige la $BLP$ de acuerdo a su Propensity Score y a los valores esperados. Para ver en detalle la forma del estimador, pueden dirigirse al artículo original de Chernozhukov et al. (2018), al Tutorial de Athey y colegas (2020), o al artículo de Murakami et al. (2020). Lo importante es tener en mente que se estima una regresión del estilo 
 
@@ -335,7 +351,12 @@ tc <- test_calibration(cf)
 tc
 ```
 
-## **5.2 Interpretaciones**
+
+$$\\[1in]$$
+
+
+
+## **4.2 Interpretaciones**
 
 Para estudiar el efecto de tratamiento con una covariable en particular, se puede utilizar la función *best_linear_projection( )* para ver la magnitud de las pendientes. En este caso comenzaremos con la variable que indica si el sujeto en estudio está divorciado o no. ¿Cómo se interpreta este resultado?
 
@@ -344,8 +365,14 @@ best_linear_projection(cf, df_train$divorce)
 ```
 > Prueba con otras covariables, puedes comenzar por aquellas que están en los primeros lugares del ranking de importancia.
 
+
+$$\\[1in]$$
+
+
+
+
            
-## **5.3 Optimización**
+## **4.3 Optimización**
 
 Entendiendo que las Best Linear Projection permite estudiar que el efecto de tratamiento varía con una determinada covariable: ¿cómo se interpretaría la heterogeneidad del efecto estudiado en este caso para las variables que escogiste? Este estudio de caso no es una programa o política pública determinada, sino que es un tratamiento experimental para evaluar las percepciones sobre las políticas de bienestar.
 
