@@ -27,7 +27,6 @@ text-align: justify;
 
 
 ```{r setup, include=FALSE}
-#library(learnr)
 library(ggplot2)
 library(ggthemes)
 library(dplyr)
@@ -58,7 +57,27 @@ En este Data Tutorial estudiaremos el uso de árboles de decisión para problema
 # **1. Árboles de decisión**
 
 
-Los datos que se utilizarán en este Data Tutorial provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) <a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf" target="_blank">(ver el artículo)</a>. El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a ir a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento ($W$), respuesta ($Y$) y características observables de los votantes ($X$).
+Los datos que se utilizarán en este Data Tutorial provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) <a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf" target="_blank">(ver el artículo)</a>. El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a ir a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento ($W$), respuesta ($Y$) y características observables de los votantes ($X$). Puedes descargar los datos desde <a href="https://github.com/AndyFerver/IN4402/raw/main/social_voting.csv" target="_blank">acá</a>.
+
+A continuación cargamos los paquetes necesarios para ejecutar los modelos siguientes.
+
+```{r,eval=FALSE,echo=TRUE}
+library(ggplot2)
+library(ggthemes)
+library(dplyr)
+library(kableExtra)
+library(readr)
+library(rpart)
+library(knitr)
+library(SuperLearner)
+library(caret)
+library(grf)
+library(plotmo)
+library(rpart.plot)
+library(Metrics)
+library(ROSE)
+```
+
 
 En la base, mostrada a continuación, $Y$ es la variable de resultado (votar o no votar) en la elección general del año 2004, $W$ es la variable de tratamiento (carta recibida o no) y el resto de las variables son covariables $X$, principalmente sobre el comportamiento de voto en elecciones anteriores. 
 

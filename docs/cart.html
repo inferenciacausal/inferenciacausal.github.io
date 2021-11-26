@@ -360,7 +360,22 @@ text-align: justify;
 <p>En este Data Tutorial estudiaremos el uso de árboles de decisión para problemas de regresión y clasificación (en inglés CART, por classification and regression trees). Sigue las instrucciones entregadas y replica el código en tu computador para seguir la actividad. Ten presente que deberás hacer algunas modificaciones. Al terminar la actividad, recuerda visitar el <a href="https://uchiledii.qualtrics.com/jfe/form/SV_dd6eXhXQSyYi2Ue">enlace de Lecturas</a> para entregar tu comentario y tu retroalimentación.</p>
 <div id="árboles-de-decisión" class="section level1">
 <h1><strong>1. Árboles de decisión</strong></h1>
-<p>Los datos que se utilizarán en este Data Tutorial provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) <a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf" target="_blank">(ver el artículo)</a>. El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a ir a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento (<span class="math inline">\(W\)</span>), respuesta (<span class="math inline">\(Y\)</span>) y características observables de los votantes (<span class="math inline">\(X\)</span>).</p>
+<p>Los datos que se utilizarán en este Data Tutorial provienen del artículo “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” de Gerber, Green y Larimer (2008) <a href="https://isps.yale.edu/sites/default/files/publication/2012/12/ISPS08-001.pdf" target="_blank">(ver el artículo)</a>. El artículo trata sobre un estudio de campo en el que los votantes registrados en los EE. UU. fueron seleccionados al azar y recibieron cartas motivándolos a ir a votar. Como el papel electoral en Estados Unidos es público y se puede consultar quién votó, los investigadores pudieron analizar el efecto de las cartas en la participación de los votantes. Los datos contienen variables relativas al tratamiento (<span class="math inline">\(W\)</span>), respuesta (<span class="math inline">\(Y\)</span>) y características observables de los votantes (<span class="math inline">\(X\)</span>). Puedes descargar los datos desde <a href="https://github.com/AndyFerver/IN4402/raw/main/social_voting.csv" target="_blank">acá</a>.</p>
+<p>A continuación cargamos los paquetes necesarios para ejecutar los modelos siguientes.</p>
+<pre class="r"><code>library(ggplot2)
+library(ggthemes)
+library(dplyr)
+library(kableExtra)
+library(readr)
+library(rpart)
+library(knitr)
+library(SuperLearner)
+library(caret)
+library(grf)
+library(plotmo)
+library(rpart.plot)
+library(Metrics)
+library(ROSE)</code></pre>
 <p>En la base, mostrada a continuación, <span class="math inline">\(Y\)</span> es la variable de resultado (votar o no votar) en la elección general del año 2004, <span class="math inline">\(W\)</span> es la variable de tratamiento (carta recibida o no) y el resto de las variables son covariables <span class="math inline">\(X\)</span>, principalmente sobre el comportamiento de voto en elecciones anteriores.</p>
 <p>A continuación vemos una vista previa de la base de datos (chequea en tu computador las similitudes):</p>
 <pre><code>## # A tibble: 6 × 16
@@ -517,7 +532,7 @@ MSE &lt;- sprintf(&quot;%5.4f&quot;, MSE)
 MSE</code></pre>
 <pre><code>## [1] &quot;0.2015&quot;</code></pre>
 <pre class="r"><code>rpart.plot(tree, main=&quot;Árbol de decisión: Social Pressure and Voter Turnout&quot;,box.palette=&quot;RdBu&quot;, shadow.col=&quot;gray&quot;, nn=TRUE, branch.lty = 3)</code></pre>
-<p><img src="cart_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="cart_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <p><span class="math display">\[\\[1in]\]</span></p>
 </div>
 <div id="buscando-el-número-óptimo-de-hojas" class="section level1">
@@ -530,7 +545,7 @@ MSE</code></pre>
                                    cp = 0.0001
                                    ))
 p &lt;- plotcp(tree)</code></pre>
-<p><img src="cart_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="cart_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <pre class="r"><code>#B &lt;- printcp(tree)
 A &lt;- as.data.frame(B)
 C &lt;- cbind(as.numeric(A[A$xerror == min(B[,4]), 1]), as.numeric(A[A$xerror == min(B[,4]), 2]))
@@ -550,7 +565,7 @@ C</code></pre>
 pruned &lt;- prune.rpart(tree, cp = 0.004)
 prpruned &lt;- rpart.predict(pruned, data = my_data_test)
 rpart.plot(pruned, main=&quot;Árbol de decisión PODADO: *Social Pressure and Voter Turnout*&quot;,box.palette=&quot;RdBu&quot;, shadow.col=&quot;gray&quot;, nn=TRUE, branch.lty = 3)</code></pre>
-<p><img src="cart_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="cart_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <pre class="r"><code>my_data_train = my_data %&gt;% sample_frac(0.7)
 my_data_test = anti_join(my_data, my_data_train, by = &#39;id&#39;)
 tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my_data_train,
@@ -558,7 +573,7 @@ tree &lt;- rpart(Y ~ sex+yob+g2000+g2002+p2000+p2002+p2004+p2004_mean, data = my
                                        cp = 0.004))
 pruned &lt;- prune.rpart(tree, cp = 0.004)
 rpart.plot(pruned, main=&quot;Árbol de decisión PODADO: *Social Pressure and Voter Turnout*&quot;,box.palette=&quot;RdBu&quot;, shadow.col=&quot;gray&quot;, nn=TRUE, branch.lty = 3)</code></pre>
-<p><img src="cart_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<p><img src="cart_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
 <pre class="r"><code>prpruned &lt;- predict(pruned, type = &quot;matrix&quot;, newdata = my_data_test)
 MSEf &lt;- as.data.frame(mse(my_data_test$Y, prpruned))
 colnames(MSEf) &lt;- c(&quot;MSE&quot;)
