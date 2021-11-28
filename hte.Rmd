@@ -70,8 +70,7 @@ El estudio que se busca replicar en este tutorial estudia la heterogeneidad de d
 
 ## **1.1. Datos**
 
-La base de datos puedes descargarla [aquí](https://github.com/AndyFerver/IN4402/blob/2a00eecd73f963c62dd18c9e726f09b61df36988/welfarelabel.rar), y si necesitas descargar este tutorial en formato Rmd para verlo en tu computador de manera offline, puedes hacerlo desde [aquí](https://github.com/AndyFerver/IN4402/blob/1b224508b213f0699491a9d3683f092b593b21b9/het_po.rar).
-
+La base de datos puedes descargarla <a href="https://github.com/AndyFerver/IN4402/blob/2a00eecd73f963c62dd18c9e726f09b61df36988/welfarelabel.rar" target="_blank">en el siguiente enlace</a>.
 
 ###### Green, D. P., & Kern, H. L. (2012). Modeling heterogeneous treatment effects in survey experiments with Bayesian additive regression trees. Public opinion quarterly, 76(3), 491-511.
 
@@ -366,3 +365,6 @@ En cambio, si estuviéramos estudiando una política o programa, sería de inter
 
 ###### Murakami, K., Shimada, H., Ushifusa, Y., & Ida, T. (2020). Heterogeneous Treatment Effects of Nudge and Rebate: Causal Machine Learning in a Field Experiment on Electricity Conservation (No. e-20-003).
 
+
+
+Para profundizar los contenidos y aplicaciones presentados en este tutorial, te invitamos a revisar de manera opcional <a href="https://gsbdbi.github.io/ml_tutorial/hte_tutorial/hte_tutorial.html" target="_blank">el siguiente enlace</a>, que es un Data Tutorial -en inglés- diseñado por Susan Athey.

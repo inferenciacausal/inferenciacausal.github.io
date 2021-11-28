@@ -8,4 +8,6 @@ navbar:
       href: 2SLS.html
     - text: "CART"
       href: cart.html
+    - text: "HTE"
+      href: hte.html
 output_dir: "docs"
