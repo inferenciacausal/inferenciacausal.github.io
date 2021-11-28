@@ -117,7 +117,7 @@ df <- data.frame(lapply(df, function(x) as.numeric(as.character(x))))
 
 Comenzaremos el análisis echando una mirada al contenido de la base de datos. Para ello, veremos los estadísticos descriptivos de las variables. Para eso, puede utilizar las funciones de la librería **fBasics**, la cual debe estar instalada para poder usarse.
 
-```{r paso_3, echo=TRUE,warning=FALSE}
+```{r paso_3, echo=TRUE,warning=FALSE,eval=FALSE}
 # Hacemos una matriz con los estadísticos
 summ_stats <- fBasics::basicStats(df)
 summ_stats <- as.data.frame(t(summ_stats))
